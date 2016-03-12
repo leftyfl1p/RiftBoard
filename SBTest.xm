@@ -1,4 +1,3 @@
-#import "headers.h"
 #import "SBTest.h"
 
 
@@ -20,7 +19,7 @@
 
   if (self = [super init]) {
 
-  //dont use keywindow anymore
+  //dont use keywindow anymoref
   //get main springboard window
   _window = MSHookIvar<SBWindow*>([%c(SBUIController) sharedInstance],"_window");
 
@@ -34,8 +33,6 @@
   _contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
 
   _beforeWindowLevel = -1.0f;
-
-
 
   }
 
@@ -56,12 +53,28 @@
   HBLogInfo(@"load SB TEST");
 
   //get rid of cast by making shreadinstance return the class instead of id
-  _blurView = [[CKBlurView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
 
-  //make property
-    //get springboard status bar
+  if([[RBPrefs sharedInstance] useBlur]) {
+    _blurView = [[CKBlurView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
 
+    //animate it in
+    //[_blurView setAlpha:0.0f];
+    [_blurView setHidden:NO];
 
+    //set blur view behind contentView
+    [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
+  }
+
+  if (![[RBPrefs sharedInstance] useBlur] && ![[RBPrefs sharedInstance] allowAppInteraction]){
+    CGRect screenBound = [[UIScreen mainScreen] bounds];
+    CGSize screenSize = screenBound.size; 
+    UIGraphicsBeginImageContextWithOptions(screenSize, NO, 0.0);
+    UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    [[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor colorWithPatternImage:blank];
+  }
+
+  //get springboard status bar
   UIStatusBar *status = [(SpringBoard *)[%c(SpringBoard) sharedApplication] statusBar];
  
   //HBLogInfo(@"setting keyWindow level to under status bar:%f", ((UIWindow *)[status statusBarWindow]).windowLevel - 1);
@@ -70,12 +83,7 @@
   _window.windowLevel = ((UIWindow *)[status statusBarWindow]).windowLevel - 1;
 
   
-  //animate it in
-  //[_blurView setAlpha:0.0f];
-  [_blurView setHidden:NO];
 
-  //set blur view behind contentView
-  [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
 
   [UIView animateWithDuration:0.3f animations:^{
     [_blurView setAlpha:1.0f];
@@ -147,6 +155,8 @@
     //HBLogInfo(@"clean up shit");
     //clean up
 
+    //remove invisible image for app interaction
+    [[%c(SBUIController) sharedInstance] contentView].backgroundColor = nil;
 
     [_blurView setHidden:YES];
     

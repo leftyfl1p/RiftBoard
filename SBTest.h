@@ -2,6 +2,7 @@
 #import <libactivator/libactivator.h>
 #import "CKBlurView.h"
 #import "headers.h"
+#import "RBPrefs.h"
 
 
 

@@ -4,10 +4,11 @@ include $(THEOS)/makefiles/common.mk
 #THEOS_DEVICE_IP = 10.0.1.183
 
 TWEAK_NAME = sbtest
-sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.x SBTestActivatorEventShow.x SBTestActivatorEventDismiss.x
+sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.x SBTestActivatorEventShow.x SBTestActivatorEventDismiss.x RBPrefs.m
 sbtest_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
 sbtest_LIBRARIES = activator substrate
 sbtest_CFLAGS = -fobjc-arc
+sbtest_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 #sbtest_LDFLAGS += -Wl,-segalign,4000
 
 #sbtest_LIBRARIES = 
@@ -24,3 +25,5 @@ include $(THEOS)/makefiles/bundle.mk
 
 after-install::
 	install.exec "killall -9 SpringBoard"
+SUBPROJECTS += prefs
+include $(THEOS_MAKE_PATH)/aggregate.mk

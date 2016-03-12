@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>ACTIVATOR OPTIONS</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+			<key>key</key>
+			<string>useHomeButton</string>
+			<key>label</key>
+			<string>Use Home Button</string>
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>VISUAL OPTIONS</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+			<key>key</key>
+			<string>useBlur</string>
+			<key>label</key>
+			<string>Background Blur</string>
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+			<key>key</key>
+			<string>allowAppInteraction</string>
+			<key>label</key>
+			<string>Allow App Interaction</string>
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+		</dict>
+
+		
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+			<key>key</key>
+			<string>useQuickHomeButtonDismiss</string>
+			<key>label</key>
+			<string>Quick Home Button Dismiss</string>
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>RiftBoard</string>
+</dict>
+</plist>

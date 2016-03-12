@@ -223,60 +223,67 @@ return doesnt seem to matter
 
 	if([[SBTest sharedInstance] isActive]) {
 
-		//to get the current springboard page
-		//debug? NSLog(@"CURRENT PAGE: %lld", [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex) :;
+		if([[RBPrefs sharedInstance] useQuickHomeButtonDismiss]) {
+			[[SBTest sharedInstance] dismiss];
+		} else {
 
-		//handle siri being invoked while open
-		if([%c(SBAssistantController) isAssistantVisible]) {
-			return %orig;
+
+
+			//to get the current springboard page
+			//debug? NSLog(@"CURRENT PAGE: %lld", [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex) :;
+
+			//handle siri being invoked while open
+			if([%c(SBAssistantController) isAssistantVisible]) {
+				return %orig;
+			}
+
+			
+			if(debug) HBLogInfo(@"hasOpenFolder?: %d", [[%c(SBIconController) sharedInstance] hasOpenFolder]);
+
+			if(debug) HBLogInfo(@"isEditing?: %d", [[%c(SBIconController) sharedInstance] isEditing]);
+
+			if(debug) HBLogInfo(@"showingSearch: %d", [[%c(SBSearchViewController) sharedInstance] isVisible]);
+
+			//conditions to close
+			/*
+			not showing search
+			not editing
+			no open folders
+			must be on first page
+			*/
+
+
+			if(debug) {
+				//int currentPageIndex = 1;
+				BOOL currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0;
+				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
+				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
+				BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
+				HBLogDebug(@"conditions: \n 	currentPageIndex = %d\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
+			}
+
+			if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
+				&& ![[%c(SBIconController) sharedInstance] hasOpenFolder] 
+				&& ![[%c(SBIconController) sharedInstance] isEditing] 
+				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
+				//HBLogInfo(@"asdadsdasdff");
+				[[SBTest sharedInstance] dismiss];
+			}
+
+			//handle spotlight
+			if([[%c(SBSearchViewController) sharedInstance] isVisible]) {
+				[[%c(SBSearchViewController) sharedInstance] dismiss];
+			} else
+
+			//handle disable icon editing
+			if([[%c(SBIconController) sharedInstance] isEditing]) {
+				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
+			} else
+
+			//tell icons to handle the press
+			[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
+			
 		}
-
-		
-		if(debug) HBLogInfo(@"hasOpenFolder?: %d", [[%c(SBIconController) sharedInstance] hasOpenFolder]);
-
-		if(debug) HBLogInfo(@"isEditing?: %d", [[%c(SBIconController) sharedInstance] isEditing]);
-
-		if(debug) HBLogInfo(@"showingSearch: %d", [[%c(SBSearchViewController) sharedInstance] isVisible]);
-
-		//conditions to close
-		/*
-		not showing search
-		not editing
-		no open folders
-		must be on first page
-		*/
-
-
-		if(debug) {
-			//int currentPageIndex = 1;
-			BOOL currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0;
-			BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
-			BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
-			BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
-			HBLogInfo(@"conditions: \n 	currentPageIndex = %d\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
-		}
-
-		if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
-			&& ![[%c(SBIconController) sharedInstance] hasOpenFolder] 
-			&& ![[%c(SBIconController) sharedInstance] isEditing] 
-			&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
-			//HBLogInfo(@"asdadsdasdff");
-			//[[SBTest sharedInstance] dismiss];
-		}
-
-		//handle spotlight
-		if([[%c(SBSearchViewController) sharedInstance] isVisible]) {
-			[[%c(SBSearchViewController) sharedInstance] dismiss];
-		} else
-
-		//handle disable icon editing
-		if([[%c(SBIconController) sharedInstance] isEditing]) {
-			[[%c(SBIconController) sharedInstance] setIsEditing:NO];
-		} else
-
-		//tell icons to handle the press
-		[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
-
 
 
 	} else {
@@ -285,7 +292,7 @@ return doesnt seem to matter
 
 
 
-	return NO;
+	return YES;
 }
 
 
@@ -384,6 +391,8 @@ return doesnt seem to matter
 
 %ctor {
 	//isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
+
+
 }
 
 /*
