@@ -1,0 +1,10 @@
+Package: com.leftyfl1p.springround
+Name: sbtest
+Depends: mobilesubstrate, libactivator
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: OPEN BETA. Springround for iOS 8&9
+Maintainer: leftyfl1p <leftyfl1p@me.com>
+Author: leftyfl1p <leftyfl1p@me.com>
+Section: Tweaks
+Depiction: https://leftyfl1p.github.io/depictions/?p=com.leftyfl1p.springround
