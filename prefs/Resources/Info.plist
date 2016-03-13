@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>riftboard</string>
+	<string>RiftBoard</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.leftyfl1p.springround</string>
 	<key>CFBundleInfoDictionaryVersion</key>

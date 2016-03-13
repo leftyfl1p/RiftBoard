@@ -6,10 +6,45 @@
 	<array>
 
 		<dict>
+		    <key>cell</key>
+		    <string>PSGroupCell</string>
+		    <key>headerCellClass</key>
+		    <string>HBPackageNameHeaderCell</string>
+		    <key>packageIdentifier</key>
+		    <string>com.leftyfl1p.springround</string>
+		</dict>
+
+		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>ACTIVATOR OPTIONS</string>
+			<string>ACTIVATION OPTIONS</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>Show Action</string>
+			<key>isController</key>
+			<true/>
+			<key>bundle</key>
+			<string>LibActivator</string>
+			<key>activatorListener</key>
+			<string>com.leftyfl1p.sbtest/show</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>Dismiss Action</string>
+			<key>isController</key>
+			<true/>
+			<key>bundle</key>
+			<string>LibActivator</string>
+			<key>activatorListener</key>
+			<string>com.leftyfl1p.sbtest/dismiss</string>
 		</dict>
 
 		<dict>
@@ -80,6 +115,23 @@
 			<key>PostNotification</key>
     		<string>com.leftyfl1p.springround/ReloadPrefs</string>
 		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+            <string>Thanks to @byturna for the preference icon!</string>
+		</dict>
+
+		<dict>
+		    <key>cellClass</key>
+		    <string>HBTwitterCell</string>
+		    <key>label</key>
+		    <string>New Tweaks and Updates</string>
+		    <key>user</key>
+		    <string>leftyfl1p</string>
+		</dict>
+
 	</array>
 	<key>title</key>
 	<string>RiftBoard</string>

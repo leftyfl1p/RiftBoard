@@ -221,13 +221,14 @@ return doesnt seem to matter
 */
 -(BOOL)clickedMenuButton {
 
-	if([[SBTest sharedInstance] isActive]) {
+	if([[RBPrefs sharedInstance] useHomeButton] && ![[SBTest sharedInstance] isActive]) {
+		[[SBTest sharedInstance] show];
+
+	} else if([[SBTest sharedInstance] isActive]) {
 
 		if([[RBPrefs sharedInstance] useQuickHomeButtonDismiss]) {
 			[[SBTest sharedInstance] dismiss];
 		} else {
-
-
 
 			//to get the current springboard page
 			//debug? NSLog(@"CURRENT PAGE: %lld", [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex) :;
@@ -285,6 +286,7 @@ return doesnt seem to matter
 			
 		}
 
+		
 
 	} else {
 		return %orig;

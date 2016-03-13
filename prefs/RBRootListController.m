@@ -11,7 +11,7 @@
 }
 
 + (NSString *)hb_shareText {
-	return [NSString stringWithFormat:@"I’m using RiftBoard on my %@ to use my homescreen on top of any app!", [UIDevice currentDevice].localizedModel];
+	return [NSString stringWithFormat:@"I’m using the #RiftBoard beta on my %@ to use my homescreen icons in any app!", [UIDevice currentDevice].localizedModel];
 }
 
 + (NSURL *)hb_shareURL {
@@ -21,5 +21,7 @@
 + (UIColor *)hb_tintColor {
 	return [UIColor colorWithRed:0 green:0.478 blue:1 alpha:1];
 }
+
+
 
 @end
