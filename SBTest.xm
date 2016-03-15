@@ -206,10 +206,36 @@
 }
 
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier {
-  [self dismiss];
-  if(bundleIdentifier) {
-    [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
+  //[self dismiss];
+   if(![self isActive]) {
+    return;
   }
+  HBLogInfo(@"DISMISS SB test continue");
+  //animate views out
+  [UIView animateWithDuration:0.2f animations:^{
+    [_contentView setAlpha:0.0f];
+    [_blurView setAlpha:0.0f];
+    [[%c(SpringBoard) sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+  } completion:^(BOOL finished) {
+    //HBLogInfo(@"clean up shit");
+    //clean up
+
+    //remove invisible image for app interaction
+    [[%c(SBUIController) sharedInstance] contentView].backgroundColor = nil;
+
+    [_blurView setHidden:YES];
+    
+    _blurView = nil;
+
+
+
+    _window.windowLevel = _beforeWindowLevel;
+
+    if(bundleIdentifier) {
+      [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
+    }
+    }];
+  
 
 }
 

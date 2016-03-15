@@ -55,6 +55,7 @@
 
 - (void)activator:(LAActivator *)activator receiveEvent:(LAEvent *)event {
 
+    HBLogDebug(@"NAME: %@", event.name);
     if([event.mode isEqualToString:@"application"]) {
 
       [[SBTest sharedInstance] show];

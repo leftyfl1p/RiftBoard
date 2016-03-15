@@ -77,10 +77,14 @@ void receivedPortraitRotate();
 -(void)_ignoreEvents;
 -(int)_dismissSheetsAndDetermineAlertStateForMenuClickOrSystemGesture;
 -(BOOL)isAppSwitcherShowing;
+-(BOOL)handleMenuDoubleTap;
 
-//mine
--(void)dismissSBTestAnimatedWithPendingApp:(SBApplication *)app;
--(void)dismissSBTestAnimated;
+
+
+@end
+
+@interface SBUIController (iOS8)
+-(BOOL)_activateAppSwitcher;
 
 @end
 
@@ -299,4 +303,10 @@ void receivedPortraitRotate();
 
 @interface SBSearchResultsAction
 -(SPSearchResult *)result;
+@end
+
+
+@interface SBDeckSwitcherViewController
+- (void)viewDidLoad;
+
 @end

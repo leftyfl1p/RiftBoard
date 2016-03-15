@@ -49,7 +49,7 @@ the generation of a class list and an automatic constructor.
 //static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"3.22.2016"
+#define expireDateString @"3.28.2016"
 
 static BOOL debug = NO;
 //asd
@@ -119,7 +119,7 @@ BOOL isLocked; //static?
 		[LASharedActivator registerListener:[SBTestActivatorEventDismiss sharedInstance] forName:@"com.leftyfl1p.sbtest/dismiss"];
 	} else {
 		//notice
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"SBTest" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
 		[alert show];
 	}
 
@@ -221,7 +221,8 @@ return doesnt seem to matter
 */
 -(BOOL)clickedMenuButton {
 
-	if([[RBPrefs sharedInstance] useHomeButton] && ![[SBTest sharedInstance] isActive]) {
+	if([[RBPrefs sharedInstance] useHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
+		HBLogDebug(@"trying to show");
 		[[SBTest sharedInstance] show];
 
 	} else if([[SBTest sharedInstance] isActive]) {
@@ -297,6 +298,23 @@ return doesnt seem to matter
 	return YES;
 }
 
+-(BOOL)handleMenuDoubleTap {
+	//this handles when the user assigns show listener to double menu press so they cant open it while . Activator would run first 
+	/*for(LAEvent* event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
+    	if([event.name isEqualToString:@"libactivator.menu.press.double"]) {
+    		HBLogDebug(@"double menu press assigned, returning orig.");
+    		return %orig;//perhaps this could be handled better
+    	}
+    }
+
+	if([[SBTest sharedInstance] isActive]) {
+		HBLogDebug(@"handleMenuDoubleTap???");
+		[[SBTest sharedInstance] dismiss];
+	}*/
+
+	return %orig;
+}
+
 
 %end
 
@@ -305,47 +323,20 @@ return doesnt seem to matter
 
 %hook SBIconController
 -(void)iconTapped:(id)arg1 {
-	//%log;
-	//f%orig;
-	//return;
-
 	if([[SBTest sharedInstance] isActive]) {
 		//if icon is a folder
 		if ([arg1 isKindOfClass:[%c(SBFolderIconView) class]]) {
 			[self openFolder:[arg1 folder] animated:YES];
 		} else {
-
-			//clean this up. %group?
-			//if(!isiOS9Up) {
 			//icon isnt a folder
 			SBIconView *iconView = (SBIconView *)arg1;
-
 			NSString * bundleIdentifier = iconView.icon.applicationBundleID;
-			//SBApplication* app = [[%c(SBApplicationController) sharedInstance] applicationWithBundleIdentifier:iconView.icon.applicationBundleID];
-
-			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
-			//} else {
-				//[[SBTest sharedInstance] dismissWithApp:nil];
-			//}
-			
-
-			
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];			
 		}
-
 	}
-
-
 	%orig;
-
 }
 
-//handling the icons on the homescreen
--(void)handleHomeButtonTap {
-	//HBLogInfo(@"ICONS HANDLED HOME BUTTON");
-
-	%orig;
-
-}
 
 
 %end
@@ -372,30 +363,9 @@ return doesnt seem to matter
 */
 
 
-//use this for detecting when app is selected from spotlight
-//only ios 8 needs this
-%hook SBSearchResultsAction
-
--(void)cancelAnimated:(BOOL)arg1 withCompletionBlock:(/*^block*/id)arg2 {
-	%log;
-	NSString *applicationIdentifier = [[self result] url];
-
-	if([[SBTest sharedInstance] isActive]) {
-		[[SBTest sharedInstance] dismissWithBundleIdentifier:applicationIdentifier];
-	}
-	
-	%orig;
-
-}
 
 
-%end
 
-%ctor {
-	//isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
-
-
-}
 
 /*
 for adding cirdock icons to the icon controller
@@ -409,47 +379,83 @@ for adding cirdock icons to the icon controller
 %end
 */
 
-%hook SPUISearchResultsActionManager
-/*
--(void)openURL:(id)arg1 {
-	%log;
+
+
+
+%group iOS9
+
+
+%hook SBDeckSwitcherViewController
+//for when user tries to invoke switcher while board is active
+-(void)viewDidLoad {
+	if([[SBTest sharedInstance] isActive]) {
+		HBLogDebug(@"SBDeckSwitcherViewController viewDidLoad???");
+		[[SBTest sharedInstance] dismiss];
+	}
+
 	%orig;
 }
 
--(id)_performActionForResult:(id)arg1 inSection:(id)arg2 urls:(id)arg3 fromCardType:(id)arg4 sendFeedback:(BOOL)arg5 forceDefaultAction:(BOOL)arg6 completionBlock:(id)arg7 {
-	%log;
-	return %orig;
-}
 
--(id)_performActionForResult:(id)arg1 inSection:(id)arg2 urls:(id)arg3 forceDefaultAction:(BOOL)arg4 completionBlock:(id)arg5 {
-	%log;
-	return %orig;
-}*/
+%end
+
+%hook SPUISearchResultsActionManager
 
 //ios9 only. for when spotlight needs to open an app.
 -(id)_performAction:(id)arg1 completionBlock:(/*^block*/id)arg2 {
-	%log;
+	//%log;
 	if([[SBTest sharedInstance] isActive]) {
 		[[SBTest sharedInstance] dismiss];
 	}
 	return %orig;
 }
-/*
--(id)_actionForResult:(id)arg1 inSection:(id)arg2 {
-	%log;
-	return %orig;
-}
--(id)performActionForResult:(id)arg1 inSection:(id)arg2 {
-	%log;
-	return %orig;
-}
--(id)performSecondaryActionForResult:(id)arg1 inSection:(id)arg2 {
-	%log;
-	return %orig;
-}
--(void)performCustomActionWithViewController:(id)arg1 {
-	%log;
-	%orig;
-}*/
+
 
 %end
+
+//ios9 group hook
+%end
+
+
+%group iOS8
+
+
+%hook SBUIController
+//for when user tries to invoke switcher while board is active
+-(BOOL)_activateAppSwitcher {
+	if([[SBTest sharedInstance] isActive]) {
+		HBLogDebug(@"SBUIController _activateAppSwitcher???");
+		[[SBTest sharedInstance] dismiss];
+	}
+
+	return %orig;
+}
+
+
+%end
+
+//for detecting when app is selected from spotlight
+%hook SBSearchResultsAction
+
+-(void)cancelAnimated:(BOOL)arg1 withCompletionBlock:(id)arg2 {
+	NSString *applicationIdentifier = [[self result] url];
+	if([[SBTest sharedInstance] isActive]) {
+		[[SBTest sharedInstance] dismissWithBundleIdentifier:applicationIdentifier];
+	}
+	%orig;
+}
+
+
+%end
+
+//ios8 group hook
+%end
+
+
+
+%ctor {
+	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
+	%init;
+
+
+}
