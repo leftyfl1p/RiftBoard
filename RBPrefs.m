@@ -59,12 +59,6 @@ static void reloadPrefs() {
     allowAppInteraction = [[[preferences dictionaryRepresentation] objectForKey:@"allowAppInteraction"] boolValue];
     useHomeButton = [[[preferences dictionaryRepresentation] objectForKey:@"useHomeButton"] boolValue];
     useQuickHomeButtonDismiss = [[[preferences dictionaryRepresentation] objectForKey:@"useQuickHomeButtonDismiss"] boolValue];
-    //allowAppInteraction = [preferences dictionaryRepresentation][@"allowAppInteraction"];
-    //useHomeButton = [preferences dictionaryRepresentation][@"useHomeButton"];
-    //useQuickHomeButtonDismiss = [preferences dictionaryRepresentation][@"useQuickHomeButtonDismiss"];
-
-    //NSDictionary *asdf = [preferences dictionaryRepresentation];
-
 
     HBLogDebug(@"useBlur: %d", useBlur);
     HBLogDebug(@"allowAppInteraction: %d", allowAppInteraction);

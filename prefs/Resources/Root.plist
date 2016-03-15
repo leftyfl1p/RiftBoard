@@ -49,21 +49,6 @@
 
 		<dict>
 			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.leftyfl1p.springround</string>
-			<key>key</key>
-			<string>useHomeButton</string>
-			<key>label</key>
-			<string>Use Home Button</string>
-			<key>PostNotification</key>
-    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
-		</dict>
-
-		<dict>
-			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>VISUAL OPTIONS</string>
@@ -99,8 +84,6 @@
     		<string>com.leftyfl1p.springround/ReloadPrefs</string>
 		</dict>
 
-		
-
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
@@ -127,7 +110,7 @@
 		    <key>cellClass</key>
 		    <string>HBTwitterCell</string>
 		    <key>label</key>
-		    <string>New Tweaks and Updates</string>
+		    <string>Tweak Updates</string>
 		    <key>user</key>
 		    <string>leftyfl1p</string>
 		</dict>

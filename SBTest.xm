@@ -250,6 +250,15 @@
   }
 }*/
 
+-(BOOL)asssignedToHomeButton {
+  for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
+      if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
+        HBLogDebug(@"single home button assigned, returning YES.");
+        return YES;
+      }
+    }
+    return NO;
+}
 
 
 //check if blur view is visible. make blur view not init everytime and just hide it

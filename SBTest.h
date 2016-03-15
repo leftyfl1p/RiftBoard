@@ -22,6 +22,7 @@
 -(void)show;
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier;
 //-(void)dismissWithCompletionHandler:(void(^)(void))arg3;
+-(BOOL)asssignedToHomeButton;
 -(void)dismiss;
 -(BOOL)isActive;
 

@@ -1,42 +1,3 @@
-/* How to Hook with Logos
-Hooks are written with syntax similar to that of an Objective-C @implementation.
-You don't need to #include <substrate.h>, it will be done automatically, as will
-the generation of a class list and an automatic constructor.
-
-%hook ClassName
-
-// Hooking a class method
-+ (id)sharedInstance {
-	return %orig;
-}
-
-// Hooking an instance method with an argument.
-- (void)messageName:(int)argument {
-	%log; // Write a message about this call, including its class, name and arguments, to the system log.
-
-	%orig; // Call through to the original function with its original arguments.
-	%orig(nil); // Call through to the original function with a custom argument.
-
-	// If you use %orig(), you MUST supply all arguments (except for self and _cmd, the automatically generated ones.)
-}
-
-// Hooking an instance method with no arguments.
-- (id)noArguments {
-	%log;
-	id awesome = %orig;
-	[awesome doSomethingElse];
-
-	return awesome;
-}
-
-// Always make sure you clean up after yourself; Not doing so could have grave consequences!
-%end
-
-
-1 = YES
-0 = NO
-
-*/
 #import "SBTest.h"
 #import "headers.h"
 #import "CKBlurView.h"
@@ -52,47 +13,12 @@ the generation of a class list and an automatic constructor.
 #define expireDateString @"3.28.2016"
 
 static BOOL debug = NO;
-//asd
 
-BOOL isLocked; //static?
 
 %hook SBUIController
- //icon animation test. nope.
-- (void)activateApplication:(id)arg1 fromIcon:(id)arg2 location:(int)arg3 {
-	%log;
-	%orig;
-}
-- (void)activateApplication:(id)arg1 {
-%log; //not this
-	%orig;
-}
-- (void)launchIcon:(id)arg1 fromLocation:(int)arg2 context:(id)arg3 {
-%log;
-	%orig;
-}
-
-
 
 - (void)finishLaunching {
-
 	%orig;
-
-	HBLogInfo(@"finished launching");
-
-/* deprecated in favor of something else
-	int notifyToken;
-	//notify us when the screen state changes
-	notify_register_dispatch("com.apple.springboard.hasBlankedScreen", &notifyToken, dispatch_get_main_queue(), ^(int t) {
-		uint64_t state;
-		int result = notify_get_state(notifyToken, &state);
-		result = nil;
-		HBLogInfo(@"lock state change1111 = %llu", state); //1 = locked. 0 = unlocked.
-		if (state == 1) {
-			//[[SBTest sharedInstance] dismissWithApp:nil];
-   		}
-	});*/
-
-
 	//notify when the frontmost application changes
 	[[NSNotificationCenter defaultCenter] addObserver:self
         								  selector:@selector(frontmostApplicationChanged:)
@@ -114,9 +40,8 @@ BOOL isLocked; //static?
 
 	//if current date is before expire date
 	if ([[NSDate date] compare:ExpireDate] == NSOrderedAscending) {
-		//HBLogDebug(@"this means continue?...");
-		[LASharedActivator registerListener:[SBTestActivatorEventShow sharedInstance] forName:@"com.leftyfl1p.sbtest/show"];
-		[LASharedActivator registerListener:[SBTestActivatorEventDismiss sharedInstance] forName:@"com.leftyfl1p.sbtest/dismiss"];
+		[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.sbtest/show"];
+		[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.sbtest/dismiss"];
 	} else {
 		//notice
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
@@ -124,91 +49,13 @@ BOOL isLocked; //static?
 	}
 
 
-	
-
-	//[[NSClassFromString(@"LAActivator") sharedInstance] registerListener:[CDTLamoActivatorEventCloseAll new] forName:@"com.cortexdevteam.lamo.closeall"];
-
-
 }
 
-
-
-
-/*%new
-- (void)findSuperview:(UIView *)view {
-
-    // Get the subviews of the view
-    //NSArray *subviews = [view subviews];
-
-    // Return if there are no subviews
-    //if ([subviews count] == 0) return; // COUNT CHECK LINE
-    if(view == nil) return;
-
-    NSLog(@"superview: %@", view);
-
-    [self findSuperview:view.superview];
-
-}*/
-
-
-
-/*-(BOOL)_suspendGestureShouldFinish {
-	return NO;
-}*/
-
-
-
-/*
 %new
--(void)dismissSBTestAnimated {
-
-	UIView *contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
-
-	//animate views out
-	[UIView animateWithDuration:0.2f animations:^{
-	
-	[contentView setAlpha:0.0f];
-
-	[blurView setAlpha:0.0f];
-
-    } completion:^(BOOL finished) {
-	    [[%c(SBUIController) sharedInstance] dismissSBTest];
-
-	}];
-
-}
-*/
-
-//move this
-%new
+//notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	//dismiss shit here
-	//NSLog(@"ICONS SHOWNNNNNNNNMMNNMNMNMNMNMNMMMNMNMN %@", notification.userInfo);
-
-	//HBLogInfo(@"frontmostApplicationChanged");
-	HBLogDebug(@"frontmostApplicationChanged?????");
+	HBLogDebug(@"frontmostApplicationChanged");
 	[[SBTest sharedInstance] dismiss];
-
-
-	
-}
-
-//does this replace notification from above? yes
--(void)_deviceLockStateChanged:(id)arg1 {
-	if(debug) HBLogInfo(@"LOCK state changed2222: %d", [[[(NSNotification *)arg1 userInfo] objectForKey:@"kSBNotificationKeyState"] boolValue]);
-
-	/*	0 - unlocked
-		1 - locked */
-	isLocked = [[[(NSNotification *)arg1 userInfo] objectForKey:@"kSBNotificationKeyState"] boolValue];
-
-	if(isLocked){
-		//NSLog(@"(device locked) springboard keywindow level from _deviceLockStateChanged: %f", [%c(SpringBoard) sharedApplication].keyWindow.windowLevel);
-		//[[SBTest sharedInstance] fixWindowShit];
-		//[[SBTest sharedInstance] dismissWithApp:nil];
-	}
-
-	
-	%orig;
 }
 
 
@@ -221,7 +68,7 @@ return doesnt seem to matter
 */
 -(BOOL)clickedMenuButton {
 
-	if([[RBPrefs sharedInstance] useHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
+	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
 		HBLogDebug(@"trying to show");
 		[[SBTest sharedInstance] show];
 
@@ -231,20 +78,10 @@ return doesnt seem to matter
 			[[SBTest sharedInstance] dismiss];
 		} else {
 
-			//to get the current springboard page
-			//debug? NSLog(@"CURRENT PAGE: %lld", [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex) :;
-
 			//handle siri being invoked while open
 			if([%c(SBAssistantController) isAssistantVisible]) {
 				return %orig;
 			}
-
-			
-			if(debug) HBLogInfo(@"hasOpenFolder?: %d", [[%c(SBIconController) sharedInstance] hasOpenFolder]);
-
-			if(debug) HBLogInfo(@"isEditing?: %d", [[%c(SBIconController) sharedInstance] isEditing]);
-
-			if(debug) HBLogInfo(@"showingSearch: %d", [[%c(SBSearchViewController) sharedInstance] isVisible]);
 
 			//conditions to close
 			/*
@@ -253,10 +90,7 @@ return doesnt seem to matter
 			no open folders
 			must be on first page
 			*/
-
-
 			if(debug) {
-				//int currentPageIndex = 1;
 				BOOL currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0;
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
@@ -268,7 +102,6 @@ return doesnt seem to matter
 				&& ![[%c(SBIconController) sharedInstance] hasOpenFolder] 
 				&& ![[%c(SBIconController) sharedInstance] isEditing] 
 				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
-				//HBLogInfo(@"asdadsdasdff");
 				[[SBTest sharedInstance] dismiss];
 			}
 
@@ -298,24 +131,6 @@ return doesnt seem to matter
 	return YES;
 }
 
--(BOOL)handleMenuDoubleTap {
-	//this handles when the user assigns show listener to double menu press so they cant open it while . Activator would run first 
-	/*for(LAEvent* event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
-    	if([event.name isEqualToString:@"libactivator.menu.press.double"]) {
-    		HBLogDebug(@"double menu press assigned, returning orig.");
-    		return %orig;//perhaps this could be handled better
-    	}
-    }
-
-	if([[SBTest sharedInstance] isActive]) {
-		HBLogDebug(@"handleMenuDoubleTap???");
-		[[SBTest sharedInstance] dismiss];
-	}*/
-
-	return %orig;
-}
-
-
 %end
 
 
@@ -336,8 +151,6 @@ return doesnt seem to matter
 	}
 	%orig;
 }
-
-
 
 %end
 
