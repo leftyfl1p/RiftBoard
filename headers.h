@@ -174,9 +174,10 @@ void receivedPortraitRotate();
 @end
 
 
+
 @interface SBFolderIcon : SBIcon
 -(void)launchFromLocation:(int)arg1 ;
-
+-(id)folder;
 @end
 
 
@@ -310,3 +311,35 @@ void receivedPortraitRotate();
 - (void)viewDidLoad;
 
 @end
+
+
+
+@interface SBBookmark
+@property(readonly, retain, nonatomic) NSURL *launchURL;
+-(BOOL)icon:(id)arg1 launchFromLocation:(int)arg2 context:(id)arg3;
+
+@end
+
+@interface SBLeafIcon : SBIcon 
+- (id)applicationBundleID;
+@end
+
+@interface UIWebClip
+
+@property (assign) BOOL fullScreen;
+@property (nonatomic,retain) NSURL * pageURL;
+
+@end
+
+@interface SBBookmarkIcon : SBLeafIcon
+@property(readonly, retain, nonatomic) NSURL *launchURL;
+@property(readonly, retain, nonatomic) UIWebClip *webClip;
+-(SBBookmark *)bookmark;
+
+@end
+
+
+
+@interface SBApplicationIcon : SBLeafIcon
+@end
+

@@ -7,7 +7,7 @@
 + (id)sharedInstance;
 - (id)init;
 
-//-(void)reloadPrefs;
+-(void)reloadPrefs;
 
 -(BOOL)useBlur;
 -(void)setUseBlur:(BOOL)blur;

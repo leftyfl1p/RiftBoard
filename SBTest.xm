@@ -66,6 +66,7 @@
   }
 
   if (![[RBPrefs sharedInstance] useBlur] && ![[RBPrefs sharedInstance] allowAppInteraction]){
+    //create transparent view. explain more how this works.
     CGRect screenBound = [[UIScreen mainScreen] bounds];
     CGSize screenSize = screenBound.size; 
     UIGraphicsBeginImageContextWithOptions(screenSize, NO, 0.0);
@@ -260,6 +261,10 @@
     return NO;
 }
 
+-(BOOL)isInApplication {
+  return [[%c(SpringBoard) sharedApplication] _accessibilityFrontMostApplication] != nil;
+}
+
 
 //check if blur view is visible. make blur view not init everytime and just hide it
 -(BOOL)isActive {
@@ -273,6 +278,7 @@
     HBLogInfo(@"NO _beforeWindowLevel");
   }*/
 
+  //rewrite
   if(_window.windowLevel != _beforeWindowLevel) {
     _isActive = YES;
     HBLogInfo(@"is active");
@@ -289,7 +295,7 @@
 
 
 
-
+//check in frontmost changed if app is something because might be able to get aroudn when trying ot activate when app is loading then
 
  
 

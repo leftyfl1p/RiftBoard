@@ -1,10 +1,10 @@
 #import "RBPrefs.h"
 
-//meh. couldnt figure out how to bridge objc vars with c methods
 static BOOL useBlur;
 static BOOL allowAppInteraction;
 static BOOL useHomeButton;
 static BOOL useQuickHomeButtonDismiss;
+static id cSelf;
 
 @implementation RBPrefs
 
@@ -33,19 +33,22 @@ static BOOL useQuickHomeButtonDismiss;
 		CFNotificationSuspensionBehaviorCoalesce);
 
 
-	 	reloadPrefs();
+	 	[self reloadPrefs];
 	 }
 
+	 //probably not the best way.
+	 cSelf = self;
 	 return self;
 
 }
 
 static void receivedNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
-	reloadPrefs();
+	//self doesn't get passed into c methods.
+	[cSelf reloadPrefs];
 }
 
-static void reloadPrefs() {
+-(void)reloadPrefs {
 	HBLogDebug(@"reloading prefs");
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.leftyfl1p.springround"];
     [preferences registerDefaults:@{

@@ -7,10 +7,11 @@
 
 #import <notify.h>
 
+
 //static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"3.28.2016"
+#define expireDateString @"4.2.2016"
 
 static BOOL debug = NO;
 
@@ -47,6 +48,7 @@ static BOOL debug = NO;
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
 		[alert show];
 	}
+	//END BETA DATE SHIT
 
 
 }
@@ -56,19 +58,26 @@ static BOOL debug = NO;
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
 	HBLogDebug(@"frontmostApplicationChanged");
 	[[SBTest sharedInstance] dismiss];
+
+	//test to make things nicer when trying to invoke board while switching apps.
+	//sb window resets level when frontmost app changes anyways so this doesnt work :(
+	/*id test = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
+	//if lockscreen is present this will be SBLockScreenViewController
+	if(![test isKindOfClass:[%c(SBApplication) class]]) {
+		HBLogDebug(@"did not receive app. dismissing");
+		//[[SBTest sharedInstance] dismiss];
+	}*/
 }
 
 
-/*single home button click event. 
-
+/*
+single home button click event. 
 just calling the orig performs action
-
 return doesnt seem to matter
-
 */
 -(BOOL)clickedMenuButton {
-
-	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
+	//if activator single home button press event is assigned & board isnt already active & app switcher isnt showing & device is currently in an app
+	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
 		HBLogDebug(@"trying to show");
 		[[SBTest sharedInstance] show];
 
@@ -83,25 +92,26 @@ return doesnt seem to matter
 				return %orig;
 			}
 
-			//conditions to close
 			/*
-			not showing search
-			not editing
-			no open folders
-			must be on first page
+			conditions to close:
+			-not showing search
+			-not editing icons
+			-no open folders
+			-must be on first page
 			*/
 			if(debug) {
 				BOOL currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0;
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
 				BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
-				HBLogDebug(@"conditions: \n 	currentPageIndex = %d\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
+				HBLogDebug(@"conditions:\n currentPageIndex = %d\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
 			}
 
 			if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
 				&& ![[%c(SBIconController) sharedInstance] hasOpenFolder] 
 				&& ![[%c(SBIconController) sharedInstance] isEditing] 
 				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
+
 				[[SBTest sharedInstance] dismiss];
 			}
 
@@ -137,18 +147,38 @@ return doesnt seem to matter
 
 
 %hook SBIconController
--(void)iconTapped:(id)arg1 {
+
+- (void)_launchIcon:(id)arg1 {
+	//%log;
 	if([[SBTest sharedInstance] isActive]) {
 		//if icon is a folder
-		if ([arg1 isKindOfClass:[%c(SBFolderIconView) class]]) {
+		if ([arg1 isKindOfClass:[%c(SBFolderIcon) class]]) {
 			[self openFolder:[arg1 folder] animated:YES];
-		} else {
-			//icon isnt a folder
-			SBIconView *iconView = (SBIconView *)arg1;
-			NSString * bundleIdentifier = iconView.icon.applicationBundleID;
-			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];			
+		}
+		//icon is a web bookmark
+		else if ([arg1 isKindOfClass:[%c(SBBookmarkIcon) class]]) {
+			/*
+			webapps that arent "fullscreen" still have a
+			launch url that launches them in fullscreen.
+			*/
+			SBBookmarkIcon * icon = (SBBookmarkIcon *)arg1;
+			if(icon.webClip.fullScreen) {
+				[[UIApplication sharedApplication] openURL:icon.launchURL];
+			} else {
+				[[UIApplication sharedApplication] openURL:icon.webClip.pageURL];
+			}
+
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:nil];
+		} 
+
+		else {
+			//icon should be an app
+			SBApplicationIcon *icon = (SBApplicationIcon *)arg1;
+			NSString * bundleIdentifier = icon.applicationBundleID;
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
 		}
 	}
+
 	%orig;
 }
 
@@ -178,29 +208,12 @@ return doesnt seem to matter
 
 
 
-
-
-/*
-for adding cirdock icons to the icon controller
-
-%hook SBIconModel
-
-- (void)addIcon:(id)arg1 {
-	%log;
-	%orig;
-}
-%end
-*/
-
-
-
-
 %group iOS9
 
 
 %hook SBDeckSwitcherViewController
 //for when user tries to invoke switcher while board is active
--(void)viewDidLoad {
+-(void)viewDidLoad {//FIXME: use view did appear
 	if([[SBTest sharedInstance] isActive]) {
 		HBLogDebug(@"SBDeckSwitcherViewController viewDidLoad???");
 		[[SBTest sharedInstance] dismiss];
@@ -226,7 +239,7 @@ for adding cirdock icons to the icon controller
 
 %end
 
-//ios9 group hook
+//ios9 group
 %end
 
 
@@ -251,7 +264,7 @@ for adding cirdock icons to the icon controller
 %hook SBSearchResultsAction
 
 -(void)cancelAnimated:(BOOL)arg1 withCompletionBlock:(id)arg2 {
-	NSString *applicationIdentifier = [[self result] url];
+	NSString *applicationIdentifier = [[self result] url];//get headers for this
 	if([[SBTest sharedInstance] isActive]) {
 		[[SBTest sharedInstance] dismissWithBundleIdentifier:applicationIdentifier];
 	}
@@ -261,14 +274,18 @@ for adding cirdock icons to the icon controller
 
 %end
 
-//ios8 group hook
+//ios8 group
 %end
 
 
 
 %ctor {
+	//initialize version specific hooks
 	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
+	//init ungrouped hooks
 	%init;
+
+	[[RBPrefs sharedInstance] reloadPrefs];
 
 
 }
