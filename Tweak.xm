@@ -141,6 +141,10 @@ return doesnt seem to matter
 	return YES;
 }
 
+- (_Bool)handleMenuDoubleTap {
+	%log;
+	return %orig;
+}
 %end
 
 
@@ -182,6 +186,14 @@ return doesnt seem to matter
 	%orig;
 }
 
+//make sure reachability works while board is active
+- (_Bool)_shouldRespondToReachability {
+	if([[SBTest sharedInstance] isActive]) {
+		return YES;
+	}
+	return %orig;
+}
+
 %end
 
 /*
@@ -204,8 +216,6 @@ return doesnt seem to matter
 
 %end
 */
-
-
 
 
 %group iOS9
