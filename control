@@ -1,9 +1,9 @@
 Package: com.leftyfl1p.springround
-Name: sbtest
+Name: RiftBoard
 Depends: mobilesubstrate, libactivator, ws.hbang.common
 Version: 0.0.1
 Architecture: iphoneos-arm
-Description: OPEN BETA. Springround for iOS 8&9
+Description: Homescreen icons in any app!
 Maintainer: leftyfl1p <leftyfl1p@me.com>
 Author: leftyfl1p <leftyfl1p@me.com>
 Section: Tweaks

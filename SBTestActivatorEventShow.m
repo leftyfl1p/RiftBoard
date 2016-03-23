@@ -24,12 +24,22 @@
 }
 
 - (void)activator:(LAActivator *)activator receiveEvent:(LAEvent *)event {
-  if([[SBTest sharedInstance] isActive]) {
-    [[SBTest sharedInstance] dismiss];
+
+  if(![event.name isEqualToString:@"libactivator.menu.press.single"]) {
+    //HBLogDebug(@"activator: single press not received");
+    if([[SBTest sharedInstance] isActive]) {
+      [[SBTest sharedInstance] dismiss];
+      [event setHandled:YES];
+    } else {
+      [[SBTest sharedInstance] show];
+      [event setHandled:YES];
+    }
+     
   } else {
-    [[SBTest sharedInstance] show];
+    //HBLogDebug(@"activator: single press received. event not being handled.");
+    [event setHandled:NO];
   }
-  [event setHandled:YES]; 
+
 }
 
 @end

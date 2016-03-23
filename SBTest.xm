@@ -254,7 +254,7 @@
 -(BOOL)asssignedToHomeButton {
   for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
       if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
-        HBLogDebug(@"single home button assigned, returning YES.");
+        //HBLogDebug(@"single home button assigned, returning YES.");
         return YES;
       }
     }
@@ -268,25 +268,8 @@
 
 //check if blur view is visible. make blur view not init everytime and just hide it
 -(BOOL)isActive {
-  //could maybe be improved
 
-  //HBLogInfo(@"window level: %f", _window.windowLevel);
-
-  /*HBLogInfo(@"_beforeWindowLevel:: %f", _beforeWindowLevel);
-
-  if(!_beforeWindowLevel) {
-    HBLogInfo(@"NO _beforeWindowLevel");
-  }*/
-
-  //rewrite
-  if(_window.windowLevel != _beforeWindowLevel) {
-    _isActive = YES;
-    HBLogInfo(@"is active");
-
-  } else {
-    _isActive = NO;
-    HBLogInfo(@"isnt active");
-  }
+  _window.windowLevel != _beforeWindowLevel? _isActive = YES : _isActive = NO;
 
   return _isActive;
 

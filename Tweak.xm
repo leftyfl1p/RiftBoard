@@ -13,7 +13,7 @@
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
 #define expireDateString @"4.2.2016"
 
-static BOOL debug = NO;
+static BOOL debug = YES;
 
 
 %hook SBUIController
@@ -56,7 +56,7 @@ static BOOL debug = NO;
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	HBLogDebug(@"frontmostApplicationChanged");
+	if(debug)HBLogDebug(@"frontmostApplicationChanged");
 	[[SBTest sharedInstance] dismiss];
 
 	//test to make things nicer when trying to invoke board while switching apps.
@@ -70,23 +70,28 @@ static BOOL debug = NO;
 }
 
 
-/*
-single home button click event. 
-just calling the orig performs action
-return doesnt seem to matter
-*/
+//this entire thing could probably use some refactoring
 -(BOOL)clickedMenuButton {
 	//if activator single home button press event is assigned & board isnt already active & app switcher isnt showing & device is currently in an app
 	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
-		HBLogDebug(@"trying to show");
+		if(debug)HBLogDebug(@"asssignedToHomeButton and appropriate to show. showing.");
 		[[SBTest sharedInstance] show];
 
 	} else if([[SBTest sharedInstance] isActive]) {
 
 		if([[RBPrefs sharedInstance] useQuickHomeButtonDismiss]) {
-			[[SBTest sharedInstance] dismiss];
-		} else {
 
+			if(debug)HBLogDebug(@"useQuickHomeButtonDismiss is on, dismissing");
+
+			if([[%c(SBIconController) sharedInstance] isEditing]) {
+				if(debug)HBLogDebug(@"but was editing.");
+				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
+			} else {
+				[[SBTest sharedInstance] dismiss];
+			}
+			
+		} else {
+			if(debug)HBLogDebug(@"useQuickHomeButtonDismiss is off");
 			//handle siri being invoked while open
 			if([%c(SBAssistantController) isAssistantVisible]) {
 				return %orig;
@@ -100,11 +105,11 @@ return doesnt seem to matter
 			-must be on first page
 			*/
 			if(debug) {
-				BOOL currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0;
+				int currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex;
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
 				BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
-				HBLogDebug(@"conditions:\n currentPageIndex = %d\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
+				HBLogDebug(@"\n conditions:\n currentPageIndex = %i\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
 			}
 
 			if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
@@ -112,8 +117,9 @@ return doesnt seem to matter
 				&& ![[%c(SBIconController) sharedInstance] isEditing] 
 				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
 
+				if(debug)HBLogDebug(@"should close here");
 				[[SBTest sharedInstance] dismiss];
-			}
+			} else
 
 			//handle spotlight
 			if([[%c(SBSearchViewController) sharedInstance] isVisible]) {
@@ -123,28 +129,30 @@ return doesnt seem to matter
 			//handle disable icon editing
 			if([[%c(SBIconController) sharedInstance] isEditing]) {
 				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
-			} else
+			} else {
 
-			//tell icons to handle the press
-			[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
+				//tell icons to handle the press
+				if(debug)HBLogDebug(@"icons handleHomeButtonTap");
+				[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
+			}
+
+			
+			
 			
 		}
 
 		
 
 	} else {
+		
 		return %orig;
 	}
-
 
 
 	return YES;
 }
 
-- (_Bool)handleMenuDoubleTap {
-	%log;
-	return %orig;
-}
+
 %end
 
 
@@ -153,9 +161,9 @@ return doesnt seem to matter
 %hook SBIconController
 
 - (void)_launchIcon:(id)arg1 {
-	//%log;
+
 	if([[SBTest sharedInstance] isActive]) {
-		//if icon is a folder
+		//icon is a folder
 		if ([arg1 isKindOfClass:[%c(SBFolderIcon) class]]) {
 			[self openFolder:[arg1 folder] animated:YES];
 		}
@@ -249,6 +257,16 @@ return doesnt seem to matter
 
 %end
 
+%hook SBMainDisplaySceneManager
+
+- (_Bool)_shouldBreadcrumbApplication:(id)arg1 withTransitionContext:(id)arg2 {
+	%log;
+	return %orig;
+}
+
+
+%end
+
 //ios9 group
 %end
 
@@ -295,7 +313,7 @@ return doesnt seem to matter
 	//init ungrouped hooks
 	%init;
 
-	[[RBPrefs sharedInstance] reloadPrefs];
+	//[[RBPrefs sharedInstance] reloadPrefs];
 
 
 }
