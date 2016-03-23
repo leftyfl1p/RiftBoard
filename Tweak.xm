@@ -261,6 +261,9 @@ static BOOL debug = YES;
 
 - (_Bool)_shouldBreadcrumbApplication:(id)arg1 withTransitionContext:(id)arg2 {
 	%log;
+	if([[SBTest sharedInstance] isActive]) {
+		return NO;
+	}
 	return %orig;
 }
 

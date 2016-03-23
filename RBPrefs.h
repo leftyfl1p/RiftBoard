@@ -2,7 +2,6 @@
 #import <Cephei/HBPreferences.h>
 
 @interface RBPrefs : NSObject
-@property (nonatomic, assign) BOOL someBool;
 
 + (id)sharedInstance;
 - (id)init;
@@ -20,5 +19,8 @@
 
 -(BOOL)useQuickHomeButtonDismiss;
 -(void)setUseQuickHomeButtonDismiss:(BOOL)homeButtonDismiss;
+
+-(BOOL)debug;
+-(void)setDebug:(BOOL)debug;
 
 @end

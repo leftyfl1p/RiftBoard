@@ -138,6 +138,8 @@ void receivedPortraitRotate();
 -(void)iconTapped:(id)arg1 ;
 -(void)handleHomeButtonTap;
 
+-(void)closeFolderAnimated:(BOOL)arg1;
+
 //using
 -(void)setIsEditing:(BOOL)arg1 ;
 

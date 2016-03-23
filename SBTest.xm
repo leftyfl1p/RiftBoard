@@ -19,15 +19,8 @@
 
   if (self = [super init]) {
 
-  //dont use keywindow anymoref
   //get main springboard window
   _window = MSHookIvar<SBWindow*>([%c(SBUIController) sharedInstance],"_window");
-
-  //init blur view
-  //_blurView = [[CKBlurView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
-  //_blurView = [[CKBlurView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-  //[_blurView setAlpha:0.0f];
-  //_blurView.hidden = YES;
 
   //set contentView
   _contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
@@ -50,7 +43,7 @@
   }
 
 
-  HBLogInfo(@"load SB TEST");
+  if([[RBPrefs sharedInstance] debug])HBLogInfo(@"RiftBoard: Start Loading...");
 
   //get rid of cast by making shreadinstance return the class instead of id
 
@@ -168,6 +161,13 @@
     _window.windowLevel = _beforeWindowLevel;
     }];
 
+
+    //make sure spotlight is closed
+    [[%c(SBSearchViewController) sharedInstance] dismiss];
+
+    //make sure folders are closed too
+    [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
+
     /*if something else fucks with the window level then dont touch it
     if([%c(SpringBoard) sharedApplication].keyWindow.windowLevel == _currentWindowLevel) {
       HBLogInfo(@"setting keyWindow level back to %f from _beforeWindowLevel", _beforeWindowLevel);
@@ -211,7 +211,7 @@
    if(![self isActive]) {
     return;
   }
-  HBLogInfo(@"DISMISS SB test continue");
+  if([[RBPrefs sharedInstance] debug])HBLogInfo(@"RiftBoard: dismissing...");
   //animate views out
   [UIView animateWithDuration:0.2f animations:^{
     [_contentView setAlpha:0.0f];
@@ -236,6 +236,12 @@
       [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
     }
     }];
+
+    //make sure spotlight is closed
+    [[%c(SBSearchViewController) sharedInstance] dismiss];
+
+    //make sure folders are closed too
+    [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
   
 
 }
@@ -254,7 +260,7 @@
 -(BOOL)asssignedToHomeButton {
   for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
       if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
-        //HBLogDebug(@"single home button assigned, returning YES.");
+        if([[RBPrefs sharedInstance] debug])HBLogDebug(@"single home button assigned, returning YES.");
         return YES;
       }
     }
