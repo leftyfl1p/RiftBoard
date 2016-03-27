@@ -12,16 +12,18 @@
 @property (nonatomic, retain) UIView *contentView;
 @property (nonatomic, retain) CKBlurView *blurView;
 @property (nonatomic, retain) UIWindow *window;
-@property (nonatomic) float beforeWindowLevel;
-@property (nonatomic) float currentWindowLevel;
+@property (nonatomic) double beforeWindowLevel;
+@property (nonatomic) double currentWindowLevel;
 @property (nonatomic) BOOL isActive;
 @property (nonatomic) BOOL deviceIsUnlocked;
+//@property (nonatomic) double orig;
 
 + (id)sharedInstance;
 - (id)init;
 -(void)show;
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier;
 -(BOOL)isInApplication;
+-(void)handleRotation;
 //-(void)dismissWithCompletionHandler:(void(^)(void))arg3;
 -(BOOL)asssignedToHomeButton;
 -(void)dismiss;

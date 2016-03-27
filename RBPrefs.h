@@ -3,6 +3,8 @@
 
 @interface RBPrefs : NSObject
 
+
+
 + (id)sharedInstance;
 - (id)init;
 

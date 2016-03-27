@@ -79,7 +79,8 @@ void receivedPortraitRotate();
 -(BOOL)isAppSwitcherShowing;
 -(BOOL)handleMenuDoubleTap;
 
-
+- (void)forceIconInterfaceOrientation:(long long)arg1 duration:(double)arg2;
+- (void)setFakeSpringBoardStatusBarVisible:(_Bool)arg1;
 
 @end
 
@@ -103,16 +104,14 @@ void receivedPortraitRotate();
 -(id)_accessibilityFrontMostApplication;
 -(id)_accessibilityTopDisplay;
 -(id)_accessibilityRunningApplications;
--(int)_frontMostAppOrientation;
+//-(int)_frontMostAppOrientation;
 -(void)_revealSpotlight;
+- (void)_deactivateReachability;
 
-//using
--(void)cancelMenuButtonRequests;
--(void)clearMenuButtonTimer;
 
-//mine
--(void)setupSBTest;
--(void)dismissSBTest;
+//rotation
+- (long long)_frontMostAppOrientation;
+
 
 @end
 
@@ -345,3 +344,6 @@ void receivedPortraitRotate();
 @interface SBApplicationIcon : SBLeafIcon
 @end
 
+@interface SBIconListView
+- (void)prepareToRotateToInterfaceOrientation:(long long)arg1;
+@end

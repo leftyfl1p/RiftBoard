@@ -25,7 +25,7 @@
   //set contentView
   _contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
 
-  _beforeWindowLevel = -1.0f;
+  _beforeWindowLevel = _window.windowLevel;
 
   }
 
@@ -124,86 +124,7 @@
 
 //change arg1 to just bundle id. maybe split into 2 methods?
 -(void)dismiss {
-  //HBLogInfo(@"DISMISS SB TEST");
-  //HBLogInfo(@"_beforeWindowLevel:: %d", _beforeWindowLevel);
-  //dismiss everything here
-
-  //UIView *contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
-
-  //HBLogInfo(@"springboard keywindow level from dismissWithApp: %f", [%c(SpringBoard) sharedApplication].keyWindow.windowLevel);
-
-
-  //UIView *contentView = [(SBUIController *)[%c(SBUIController) sharedInstance] contentView];
-
-  //check to see if active
-  if(![self isActive]) {
-    return;
-  }
-  HBLogInfo(@"DISMISS SB test continue");
-  //animate views out
-  [UIView animateWithDuration:0.2f animations:^{
-    [_contentView setAlpha:0.0f];
-    [_blurView setAlpha:0.0f];
-    [[%c(SpringBoard) sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
-  } completion:^(BOOL finished) {
-    //HBLogInfo(@"clean up shit");
-    //clean up
-
-    //remove invisible image for app interaction
-    [[%c(SBUIController) sharedInstance] contentView].backgroundColor = nil;
-
-    [_blurView setHidden:YES];
-    
-    _blurView = nil;
-
-
-
-    _window.windowLevel = _beforeWindowLevel;
-    }];
-
-
-    //make sure spotlight is closed
-    [[%c(SBSearchViewController) sharedInstance] dismiss];
-
-    //make sure folders are closed too
-    [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
-
-    /*if something else fucks with the window level then dont touch it
-    if([%c(SpringBoard) sharedApplication].keyWindow.windowLevel == _currentWindowLevel) {
-      HBLogInfo(@"setting keyWindow level back to %f from _beforeWindowLevel", _beforeWindowLevel);
-      [%c(SpringBoard) sharedApplication].keyWindow.windowLevel = _beforeWindowLevel;
-    } else {
-      HBLogInfo(@"something else touched window level so not resetting back to _beforeWindowLevel");
-      HBLogInfo(@"_window: %f", _window.windowLevel);
-      HBLogInfo(@"keyWindow: %f", [%c(SpringBoard) sharedApplication].keyWindow.windowLevel);
-    }*/
-    
-    /*erase what we know
-    _beforeWindowLevel = 0.0f;
-    HBLogInfo(@"_beforeWindowLevel was reset to 0");*/
-
-    /*_currentWindowLevel = 0.0f;
-    HBLogInfo(@"_currentWindowLevel was reset to 0");*/
-    
-    
-
-    
-    //i think this is for the blur?
-    //[(SBUIController *)[%c(SBUIController) sharedInstance] contentView].backgroundColor = nil;
-
-    
-
-    //i think springboard does this itself so we dont need to.
-    //[_contentView setAlpha:1.0f];
-
-  
-
-  //not sure why this is needed.
-  
-
-
-
-
+  [self dismissWithBundleIdentifier:nil];
 }
 
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier {
@@ -216,7 +137,24 @@
   [UIView animateWithDuration:0.2f animations:^{
     [_contentView setAlpha:0.0f];
     [_blurView setAlpha:0.0f];
-    [[%c(SpringBoard) sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+
+    /* hax >:/
+    need to hide status bar here so animation is in sync with
+    others but at this moment in time riftboard is active.
+    setStatusBarHidden:withAnimation: won't hide unless
+    riftboard isn't active because springboard likes to
+    try to hide the sb statusbar whenever it thinks it
+    shouldnt be active (or whenever riftboard IS active).
+
+    So the shitty solution is to send an out of bound enum
+    to the animation param and to handle it as we would want
+    it to before the real implementation is ran.
+
+    I can't find any other methods that overrides this to run
+    that instead, but maybe I'm just an idiot and this is a
+    complete oversight by me.
+    */
+    [[%c(SpringBoard) sharedApplication] setStatusBarHidden:YES withAnimation:1337];
   } completion:^(BOOL finished) {
     //HBLogInfo(@"clean up shit");
     //clean up
@@ -229,7 +167,7 @@
     _blurView = nil;
 
 
-
+    //put springboard back where we found it
     _window.windowLevel = _beforeWindowLevel;
 
     if(bundleIdentifier) {
@@ -242,11 +180,21 @@
 
     //make sure folders are closed too
     [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
+
+    //and deactivate reachability 
+    [(SpringBoard *)[%c(SpringBoard) sharedApplication] _deactivateReachability];
   
 
 }
 
-
+-(void)handleRotation {
+  //[(SpringBoard *)[%c(SpringBoard) sharedApplication] updateNativeOrientationWithOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] updateMirroredDisplays: YES];
+  [[%c(SBUIController) sharedInstance] forceIconInterfaceOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] duration:0.4];
+  [[%c(SpringBoard) sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+  if(_blurView) {
+    [_blurView setFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
+  }
+}
 
 /*-(void)fixWindowShit {
   if([%c(SpringBoard) sharedApplication].keyWindow.windowLevel != -1.0f) {

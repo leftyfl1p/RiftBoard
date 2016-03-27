@@ -11,12 +11,13 @@
 //static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"4.2.2016"
+#define expireDateString @"4.6.2016"
 
 static BOOL debug = YES;
-
+static NSString *previousBundleIdentifier;
 
 %hook SBUIController
+
 
 - (void)finishLaunching {
 	%orig;
@@ -27,9 +28,10 @@ static BOOL debug = YES;
         								  object:nil];
 //	
 
-
-
-
+[[NSNotificationCenter defaultCenter] addObserver:self
+        								  selector:@selector(AXSBServerOrientationChange:)
+        								  name:@"AXSBServerOrientationChange"
+        								  object:nil];
 
 	//beta date shit
 	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -53,21 +55,74 @@ static BOOL debug = YES;
 
 }
 
+//rotation
+- (void)tearDownIconListAndBar {
+	//%log;
+	if([[SBTest sharedInstance] isActive]) {
+		HBLogDebug(@"tearDownIconListAndBar: is active, returning.");
+		return;
+	}
+
+	%orig;
+}
+
+
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	if(debug)HBLogDebug(@"frontmostApplicationChanged");
-	[[SBTest sharedInstance] dismiss];
+	//if(debug)HBLogDebug(@"frontmostApplicationChanged: %@", notification);
+
+
+
+
+	//if([[SBTest sharedInstance] isActive]) {
+		//if lockscreen is present this will be SBLockScreenViewController
+		id frontmostDisplay = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
+	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
+		NSString *bundleIdentifier = ((SBApplication *)frontmostDisplay).bundleIdentifier;
+		if(previousBundleIdentifier.length == 0) previousBundleIdentifier = bundleIdentifier;
+
+		if(![bundleIdentifier isEqualToString:previousBundleIdentifier]) {
+			
+			previousBundleIdentifier = bundleIdentifier;
+			if([[SBTest sharedInstance] isActive]) {
+				[[SBTest sharedInstance] dismiss];
+				HBLogDebug(@"different bundleIdentifier received, dismissing.");
+			}
+
+		} else {
+			HBLogDebug(@"same bundleIdentifier, doing nothing.");
+		}
+	} else {
+		
+		if([[SBTest sharedInstance] isActive]) {
+			[[SBTest sharedInstance] dismiss];
+			HBLogDebug(@"did not receive SBApplication, dismissing.");
+		}
+	}
+	//}
+
+	//[[SBTest sharedInstance] dismiss];
+
 
 	//test to make things nicer when trying to invoke board while switching apps.
 	//sb window resets level when frontmost app changes anyways so this doesnt work :(
-	/*id test = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
+	//id test = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
 	//if lockscreen is present this will be SBLockScreenViewController
-	if(![test isKindOfClass:[%c(SBApplication) class]]) {
+	/*if(![test isKindOfClass:[%c(SBApplication) class]]) {
 		HBLogDebug(@"did not receive app. dismissing");
 		//[[SBTest sharedInstance] dismiss];
 	}*/
 }
+
+%new
+- (void)AXSBServerOrientationChange:(NSNotification *) notification {
+	HBLogDebug(@"AXSBServerOrientationChange: %@", notification);
+	if([[SBTest sharedInstance] isActive]) {
+		[[SBTest sharedInstance] handleRotation];
+	}
+}
+
 
 
 //this entire thing could probably use some refactoring
@@ -155,7 +210,22 @@ static BOOL debug = YES;
 
 %end
 
+%hook SpringBoard
 
+- (void)setStatusBarHidden:(BOOL)hidden withAnimation:(UIStatusBarAnimation)animation {
+	if([[SBTest sharedInstance] isActive]) {
+		hidden = NO;
+	}
+	//hax >:/
+	//see: SBTest.xm:157 something
+	if(animation == 1337) {
+		hidden = YES;
+		animation = UIStatusBarAnimationFade;
+	}
+	%orig(hidden, animation);
+}
+
+%end
 
 
 %hook SBIconController
@@ -204,6 +274,20 @@ static BOOL debug = YES;
 
 %end
 
+
+%hook SBIconListView
+/*
+handles:
+<Error>: *** Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'call to -[SBIconListView prepareToRotateToInterfaceOrientation:] when already rotating'
+*/
+- (void)prepareToRotateToInterfaceOrientation:(long long)arg1 {
+	 unsigned int _rotating = MSHookIvar<unsigned int>(self,"_rotating");
+	 if(_rotating) return;
+	 %orig;
+}
+
+%end
+
 /*
 %hook SBSearchViewController
 
@@ -224,6 +308,15 @@ static BOOL debug = YES;
 
 %end
 */
+
+%hook SBHomeScreenWindow
+
+-(void)setWindowLevel:(double)arg1 {
+	//%log;
+	%orig;
+}
+
+%end
 
 
 %group iOS9
@@ -260,7 +353,6 @@ static BOOL debug = YES;
 %hook SBMainDisplaySceneManager
 
 - (_Bool)_shouldBreadcrumbApplication:(id)arg1 withTransitionContext:(id)arg2 {
-	%log;
 	if([[SBTest sharedInstance] isActive]) {
 		return NO;
 	}
@@ -269,6 +361,7 @@ static BOOL debug = YES;
 
 
 %end
+
 
 //ios9 group
 %end
@@ -287,6 +380,7 @@ static BOOL debug = YES;
 
 	return %orig;
 }
+
 
 
 %end
