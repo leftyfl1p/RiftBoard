@@ -46,24 +46,74 @@
   if([[RBPrefs sharedInstance] debug])HBLogInfo(@"RiftBoard: Start Loading...");
 
   //get rid of cast by making shreadinstance return the class instead of id
+  //???????
 
-  if([[RBPrefs sharedInstance] useBlur]) {
+  if([[RBPrefs sharedInstance] BlurStyle] == 1) {
     _blurView = [[CKBlurView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
+    
+    /* apple
+    UIVisualEffect *blurEffect;
+    blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
 
+    //UIVisualEffectView *visualEffectView;
+    _blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+
+    _blurView.frame = [[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds];*/
+
+
+    //_UIBackdropViewSettings *settings = [_UIBackdropViewSettings settingsForStyle:2060];
+
+    
+
+    //[settings setColorTint:[UIColor colorWithRed:1 green:0 blue:0 alpha:1]];
+    //[settings setColorTint:[_UIBackdropViewSettings darkeningTintColor]];
+    
+    //[settings setColorTint:[UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1]];
+    //[settings setRequiresColorStatistics:YES];
+    //[settings setUsesColorTintView:YES];
+    //[settings setColorTintAlpha:0.8];
+    //[settings setColorTintMaskAlpha:0.7];
+    //[settings setGrayscaleTintLevel:0];
+    //[settings setGrayscaleTintAlpha:0];
+    //[settings setUsesGrayscaleTintView:NO];
+
+    // initialization of the blur view
+    
+    
+    // another way for initialization
+    //_UIBackdropView *blurView = [[_UIBackdropView alloc] initWithSettings:settings];
+     
+    // or without settings object implementation
+    //_UIBackdropView *blurView = [[_UIBackdropView alloc] initWithStyle:2060];
+
+
+    //[imageView addSubview:visualEffectView];
     //animate it in
-    //[_blurView setAlpha:0.0f];
+    [_blurView setAlpha:0.0f];
     [_blurView setHidden:NO];
 
     //set blur view behind contentView
     [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
+
+  //dark blur
+  } else if([[RBPrefs sharedInstance] BlurStyle] == 2) {
+    //NC BLUR VIEW
+    _UIBackdropViewSettings *settings = [%c(_UIBackdropViewSettingsNone) settingsForPrivateStyle:1];
+    _blurView = [[_UIBackdropView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds] autosizesToFitSuperview:YES settings:settings];
+
+    [_blurView setAlpha:0.0f];
+    [_blurView setHidden:NO];
+
+    [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
+
   }
 
-  if (![[RBPrefs sharedInstance] useBlur] && ![[RBPrefs sharedInstance] allowAppInteraction]){
+  if (!_blurView && ![[RBPrefs sharedInstance] allowAppInteraction]){
     //create transparent view. explain more how this works.
     CGRect screenBound = [[UIScreen mainScreen] bounds];
     CGSize screenSize = screenBound.size; 
     UIGraphicsBeginImageContextWithOptions(screenSize, NO, 0.0);
-    UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage *blank = UIGraphicsGetImageFromCurrentImageContext(); //leak? cuz no destroy ref
     UIGraphicsEndImageContext();
     [[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor colorWithPatternImage:blank];
   }
@@ -90,34 +140,6 @@
 
   //reveal icons
   [[%c(SBUIController) sharedInstance] restoreContentAndUnscatterIconsAnimated:YES];
-
-
-    /************             SOLID BACKGROUND    *** *
-  NSBundle *bundle = [[NSBundle alloc] initWithPath:kBundlePath];
-
-  NSString *imagePath = [bundle pathForResource:@"test" ofType:@"png"];
-
-  UIImage *myImage = [UIImage imageWithContentsOfFile:imagePath];
-*/
-  //make this 1x1 px
-  //[%c(SBUIController) sharedInstance].contentView.backgroundColor = [UIColor colorWithPatternImage:myImage];
-  //////////[(SBUIController *)[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor redColor];//[UIColor colorWithPatternImage:myImage];
-  //[(SBUIController *)[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor redColor];
-  /************             SOLID BACKGROUND    *** */
-
-  //on = YES;
-
-
-
-  //UIView *test = [[UIView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
-
-
-    //test.backgroundColor = UIColor.redColor;
-
-    
-
-
-    //[[%c(SpringBoard) sharedApplication] _revealSpotlight];
 
 
 }
@@ -230,7 +252,27 @@
 }
 
 
+-(void)flip {
+  
 
+   CGColor *_blurColor = MSHookIvar<CGColor*>([%c(_SBIconWallpaperColorProvider) sharedInstance],"_blurColor");
+   //[_blurColor colorWithRed:0x33/255.0 green:0 blue:0x99/255.0 alpha:1.0]
+   //_blurColor = [UIColor blueColor].CGColor;
+   //_blurColor = MSHookIvar<CGColor*>([%c(_SBIconWallpaperColorProvider) sharedInstance],"_blurColor");
+    HBLogDebug(@"asdf1: %@", [UIColor colorWithCGColor:_blurColor]);
+    HBLogDebug(@"asdf: %@", _blurColor);
+
+   NSHashTable *_clients = MSHookIvar<NSHashTable*>([%c(_SBIconWallpaperColorProvider) sharedInstance],"_clients");
+   HBLogDebug(@"clients: %@", _clients);
+
+   //CGColor *_blurColor2 = MSHookIvar<CGColor*>([%c(_SBIconWallpaperColorProvider) sharedInstance],"_blurColor");
+
+  // HBLogDebug(@"asdf: %@", [UIColor colorWithCGColor:_blurColor2]);
+
+  CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.apple.accessibility.cache.enhance.text.legibility"), NULL, NULL, YES);
+  CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.apple.accessibility.increase.button.legibility"), NULL, NULL, YES);
+  CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.apple.accessibility.text.legibility.status"), NULL, NULL, YES);
+}
 
 //check in frontmost changed if app is something because might be able to get aroudn when trying ot activate when app is loading then
 

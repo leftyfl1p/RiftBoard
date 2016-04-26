@@ -1,15 +1,16 @@
 ARCHS = armv7 armv7s arm64
 include $(THEOS)/makefiles/common.mk
 
-THEOS_DEVICE_IP = 10.0.1.183
+#THEOS_DEVICE_IP = 10.0.1.183
 
 TWEAK_NAME = sbtest
 sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m
 sbtest_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
+sbtest_PRIVATE_FRAMEWORKS = AppSupport
 sbtest_LIBRARIES = activator substrate
 sbtest_CFLAGS = -fobjc-arc
 sbtest_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
-#sbtest_LDFLAGS += -Wl,-segalign,4000
+sbtest_LDFLAGS += -Wl,-segalign,4000
 
 #sbtest_LIBRARIES = 
 

@@ -4,7 +4,6 @@ static BOOL useBlur;
 static BOOL allowAppInteraction;
 static BOOL useHomeButton;
 static BOOL useQuickHomeButtonDismiss;
-static BOOL debugEnabled;
 static id cSelf;
 
 @implementation RBPrefs
@@ -37,7 +36,7 @@ static id cSelf;
 	 	[self reloadPrefs];
 	 }
 
-	 //not the best way.
+	 //meh
 	 cSelf = self;
 	 return self;
 
@@ -50,29 +49,30 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 }
 
 -(void)reloadPrefs {
-	if(debugEnabled)HBLogDebug(@"reloading prefs");
+	if(_debug)HBLogDebug(@"reloading prefs");
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.leftyfl1p.springround"];
     [preferences registerDefaults:@{
-        @"useBlur": @YES,
+        @"blur": @1,
         @"allowAppInteraction": @NO,
         @"useHomeButton": @NO,
         @"useQuickHomeButtonDismiss": @YES,
         @"debug": @NO
     }];
 
-    useBlur = [[[preferences dictionaryRepresentation] objectForKey:@"useBlur"] boolValue];
+    [self setBlurStyle:[[[preferences dictionaryRepresentation] objectForKey:@"blur"] intValue]]; 
+    //useBlur = [[[preferences dictionaryRepresentation] objectForKey:@"blur"] boolValue];
     allowAppInteraction = [[[preferences dictionaryRepresentation] objectForKey:@"allowAppInteraction"] boolValue];
     useHomeButton = [[[preferences dictionaryRepresentation] objectForKey:@"useHomeButton"] boolValue];
     useQuickHomeButtonDismiss = [[[preferences dictionaryRepresentation] objectForKey:@"useQuickHomeButtonDismiss"] boolValue];
 
-    if(debugEnabled)HBLogDebug(@"useBlur: %d", useBlur);
-    if(debugEnabled)HBLogDebug(@"allowAppInteraction: %d", allowAppInteraction);
-    if(debugEnabled)HBLogDebug(@"useHomeButton: %d", useHomeButton);
-    if(debugEnabled)HBLogDebug(@"useQuickHomeButtonDismiss: %d", useQuickHomeButtonDismiss);
+    if(_debug)HBLogDebug(@"useBlur: %d", useBlur);
+    if(_debug)HBLogDebug(@"allowAppInteraction: %d", allowAppInteraction);
+    if(_debug)HBLogDebug(@"useHomeButton: %d", useHomeButton);
+    if(_debug)HBLogDebug(@"useQuickHomeButtonDismiss: %d", useQuickHomeButtonDismiss);
 
 }
 
--(BOOL)useBlur {
+-(BOOL)blurStyle {
 	return useBlur;
 }
 
@@ -105,14 +105,6 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 
 -(void)setUseQuickHomeButtonDismiss:(BOOL)homeButtonDismiss {
 	useQuickHomeButtonDismiss = homeButtonDismiss;
-}
-
--(BOOL)debug {
-	return debugEnabled;
-}
-
--(void)setDebug:(BOOL)debug {
-	debugEnabled = debug;
 }
 
 

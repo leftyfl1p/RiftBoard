@@ -5,14 +5,6 @@
 	<key>items</key>
 	<array>
 
-		<dict>
-		    <key>cell</key>
-		    <string>PSGroupCell</string>
-		    <key>headerCellClass</key>
-		    <string>HBPackageNameHeaderCell</string>
-		    <key>packageIdentifier</key>
-		    <string>com.leftyfl1p.springround</string>
-		</dict>
 
 		<dict>
 			<key>cell</key>
@@ -56,6 +48,48 @@
 
 		<dict>
 			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>key</key>
+			<string>blur</string>
+			<key>id</key>
+			<string>blur</string>
+			<key>default</key>
+			<string>light</string>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+
+			<key>validValues</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>No Blur</string>
+				<string>Light Blur</string>
+				<string>Dark Blur</string>
+			</array>
+
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+
+		</dict>
+
+
+        <dict>
+            <key>cell</key>
+            <string>PSLinkCell</string>
+            <key>isController</key>
+            <string>1</string>
+            <key>label</key>
+            <string>Blur Options</string>
+            <key>detail</key>
+            <string>RiftBoardBlurListController</string> <!-- AboutController brings up teh standard about page -->
+        </dict>
+
+		<dict>
+			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
 			<true/>
@@ -77,6 +111,8 @@
 			<key>defaults</key>
 			<string>com.leftyfl1p.springround</string>
 			<key>key</key>
+			<string>allowAppInteraction</string>
+			<key>id</key>
 			<string>allowAppInteraction</string>
 			<key>label</key>
 			<string>Allow App Interaction</string>

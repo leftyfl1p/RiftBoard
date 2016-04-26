@@ -4,6 +4,7 @@
 #import "SBTestActivatorEventShow.h"
 #import "SBTestActivatorEventDismiss.h"
 #import <libactivator/libactivator.h>
+#import <AppSupport/CPDistributedMessagingCenter.h>
 
 #import <notify.h>
 
@@ -11,13 +12,193 @@
 //static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"4.6.2016"
+#define expireDateString @"5.20.2016"
 
 static BOOL debug = YES;
 static NSString *previousBundleIdentifier;
+static BOOL testing = NO;
+
+
+%hook SBWallpaperLegibilitySettingsProvider
+- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+- (void)wallpaperDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+%end
+
+%hook _SBAccessibilityTintView
+- (void)_updateBackgroundColor {
+	%log;
+	%orig;
+}
+- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+- (void)wallpaperDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+
+%end
+
+%hook _SBIconWallpaperColorProvider
+- (void)_updateColors {
+	%log;
+	%orig;
+}
+- (void)_updateBlurForClient:(id)arg1 {
+	%log;
+	%orig;
+}
+- (void)_updateClient:(id)arg1 {
+	%log;
+	%orig;
+}
+- (void)_updateAllClients {
+	%log;
+	%orig;
+}
+- (void)wallpaperGeometryDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+- (void)wallpaperDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+%end
+
+%hook SBWallpaperEffectView
+
+- (void)_updateWallpaperAverageColor:(id)arg1 {
+	%log;
+	%orig;
+}
+- (void)wallpaperDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+
+%end
+
+%hook _UILegibilityImageView
+
+- (BOOL)_shouldAnimatePropertyWithKey:(id)arg1 {
+	%log;
+	return %orig;
+}
+%end
+
+%hook SBWallpaperController
+
+- (void)providerLegibilitySettingsChanged:(id)arg1 {
+	%log;
+	%orig;
+}
+
+- (void)_handleWallpaperGeometryChangedForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+- (void)_handleWallpaperLegibilitySettingsChanged:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+- (void)_handleWallpaperChangedForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+
+- (id)legibilitySettingsForVariant:(long long)arg1 {
+	%log;
+	return %orig;
+}
+
+- (void)_clearHomescreenLightForegroundBlurColor {
+	%log;
+	%orig;
+}
+- (void)_createHomescreenLightForegroundBlurColorIfNecessary {
+	%log;
+	%orig;
+}
+- (void)_updateBlurGeneration {
+	%log;
+	%orig;
+}
+%end
+
+
+%hook SBIconViewMap
+
+%new
+-(void)test {
+	NSMapTable *_labelsForIcons = MSHookIvar<NSMapTable *>(self,"_labelsForIcons");
+	HBLogDebug(@"_labelsForIcons: %@", _labelsForIcons);
+
+
+}
+
+%end
+
+%hook _UILegibilitySettings
+
+- (id)shadowColor {
+	if(testing) {
+		return [UIColor blueColor];
+	}
+
+	return [UIColor greenColor];
+}
+
+%end
+
 
 %hook SBUIController
 
+%new
+- (UIImage *)captureView:(UIView *)view {
+
+    //hide controls if needed
+    CGRect rect = [view bounds];
+
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    [view.layer renderInContext:context];   
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+
+}
+
+
+- (void)wallpaperDidChangeForVariant:(long long)arg1 {
+	%log;
+	%orig;
+}
+- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
+	%log;
+	%orig;
+}
+
+
+%new;
+-(void)testing {
+	testing = testing? NO:YES;
+}
 
 - (void)finishLaunching {
 	%orig;
@@ -52,7 +233,29 @@ static NSString *previousBundleIdentifier;
 	}
 	//END BETA DATE SHIT
 
+	//XPC server
+	CPDistributedMessagingCenter *messagingCenter;
+	// Center name must be unique, recommend using application identifier.
+	messagingCenter = [CPDistributedMessagingCenter centerNamed:@"com.leftyfl1p.springround"];
+	[messagingCenter runServerOnCurrentThread];
+	 
+	// Register Messages
+	//[messagingCenter registerForMessageName:@"messageThatHasInfo" target:self selector:@selector(handleMessageNamed:withUserInfo:)];
+	[messagingCenter registerForMessageName:@"ContentViewImage" target:self selector:@selector(ContentViewImage:)];
+	 
 
+}
+
+%new
+-(NSDictionary*)ContentViewImage:(NSDictionary*)info {
+	NSData *imageData = UIImagePNGRepresentation([self captureView:[[%c(SBIconController) sharedInstance] view]]);
+
+	NSDictionary *dictionary = @{
+    @"image" : imageData,
+	};
+
+
+	return dictionary;
 }
 
 //rotation
@@ -70,21 +273,16 @@ static NSString *previousBundleIdentifier;
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	//if(debug)HBLogDebug(@"frontmostApplicationChanged: %@", notification);
-
-
-
-
-	//if([[SBTest sharedInstance] isActive]) {
-		//if lockscreen is present this will be SBLockScreenViewController
-		id frontmostDisplay = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
+	if(debug)HBLogDebug(@"frontmostApplicationChanged: %@", notification);
+	//if lockscreen is present this will be SBLockScreenViewController
+	id frontmostDisplay = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
 	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
 		NSString *bundleIdentifier = ((SBApplication *)frontmostDisplay).bundleIdentifier;
 		if(previousBundleIdentifier.length == 0) previousBundleIdentifier = bundleIdentifier;
-
+		
 		if(![bundleIdentifier isEqualToString:previousBundleIdentifier]) {
-			
 			previousBundleIdentifier = bundleIdentifier;
+			
 			if([[SBTest sharedInstance] isActive]) {
 				[[SBTest sharedInstance] dismiss];
 				HBLogDebug(@"different bundleIdentifier received, dismissing.");
@@ -272,6 +470,14 @@ static NSString *previousBundleIdentifier;
 	return %orig;
 }
 
+-(id)legibilitySettings {
+	id orig = %orig;
+
+	//[orig setShadowColor:[UIColor blueColor]];
+	return orig;
+}
+
+
 %end
 
 
@@ -309,14 +515,6 @@ handles:
 %end
 */
 
-%hook SBHomeScreenWindow
-
--(void)setWindowLevel:(double)arg1 {
-	//%log;
-	%orig;
-}
-
-%end
 
 
 %group iOS9
@@ -401,7 +599,6 @@ handles:
 
 //ios8 group
 %end
-
 
 
 %ctor {

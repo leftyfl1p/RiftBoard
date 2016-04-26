@@ -1,10 +1,10 @@
 include $(THEOS)/makefiles/common.mk
-
+#rename bundle
 BUNDLE_NAME = RiftBoard
-RiftBoard_FILES = RBRootListController.m
+RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m
 RiftBoard_INSTALL_PATH = /Library/PreferenceBundles
 RiftBoard_FRAMEWORKS = UIKit
-RiftBoard_PRIVATE_FRAMEWORKS = Preferences
+RiftBoard_PRIVATE_FRAMEWORKS = Preferences AppSupport
 RiftBoard_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 
 include $(THEOS_MAKE_PATH)/bundle.mk

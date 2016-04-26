@@ -3,14 +3,15 @@
 
 @interface RBPrefs : NSObject
 
-
+@property int BlurStyle;
+@property BOOL debug;
 
 + (id)sharedInstance;
 - (id)init;
 
 -(void)reloadPrefs;
 
--(BOOL)useBlur;
+//-(BOOL)useBlur;
 -(void)setUseBlur:(BOOL)blur;
 
 -(BOOL)allowAppInteraction;

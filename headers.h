@@ -89,6 +89,12 @@ void receivedPortraitRotate();
 
 @end
 
+@interface SBUIController (newStuff)
+-(UIImage *)ContentViewImage:(NSDictionary*)info;
+-(UIImage *)captureView:(UIView *)view;
+
+@end
+
 @interface SpringBoard
 -(void)_menuButtonUp:(id)arg1;
 -(void)quitTopApplication:(id)arg1 ;
@@ -149,6 +155,9 @@ void receivedPortraitRotate();
 -(BOOL)isEditing;
 
 - (_Bool)dismissSpotlightAnimated:(_Bool)arg1;
+
+//using
+- (_Bool)iconShouldAllowTap:(id)arg1;
 
 
 
@@ -346,4 +355,11 @@ void receivedPortraitRotate();
 
 @interface SBIconListView
 - (void)prepareToRotateToInterfaceOrientation:(long long)arg1;
+@end
+
+
+@interface _UILegibilitySettings
+
+- (void)setShadowColor:(id)arg1;
+
 @end
