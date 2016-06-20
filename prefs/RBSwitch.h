@@ -1,0 +1,4 @@
+@interface RBSwitch : UISwitch
+
+
+@end

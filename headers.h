@@ -159,17 +159,21 @@ void receivedPortraitRotate();
 //using
 - (_Bool)iconShouldAllowTap:(id)arg1;
 
+- (void)scatterAnimated:(_Bool)arg1 withCompletion:(id)arg2;
+
 
 
 
 -(void)openFolder:(id)arg1 animated:(BOOL)arg2;
 
 
--(void)scatterAnimated:(BOOL)arg1 withCompletion:(/*^block*/id)arg2 ;
 
 -(id)rootFolder;
 
 -(id)_rootFolderController;
+
+- (void)removeAllIconAnimations;
+- (_Bool)isAnimatingForUnscatter;
 
 @end
 

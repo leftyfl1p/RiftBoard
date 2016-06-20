@@ -1,9 +1,5 @@
 #import "RBPrefs.h"
 
-static BOOL useBlur;
-static BOOL allowAppInteraction;
-static BOOL useHomeButton;
-static BOOL useQuickHomeButtonDismiss;
 static id cSelf;
 
 @implementation RBPrefs
@@ -44,7 +40,7 @@ static id cSelf;
 
 static void receivedNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
-	//self doesn't get passed into c methods.
+	//self doesn't get passed into c methods. There is probably a better way of doing this.
 	[cSelf reloadPrefs];
 }
 
@@ -52,59 +48,27 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 	if(_debug)HBLogDebug(@"reloading prefs");
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.leftyfl1p.springround"];
     [preferences registerDefaults:@{
-        @"blur": @1,
+        @"blurStyle": @1,
         @"allowAppInteraction": @NO,
         @"useHomeButton": @NO,
         @"useQuickHomeButtonDismiss": @YES,
+        @"allowRotation": @NO,
         @"debug": @NO
     }];
 
     [self setBlurStyle:[[[preferences dictionaryRepresentation] objectForKey:@"blur"] intValue]]; 
-    //useBlur = [[[preferences dictionaryRepresentation] objectForKey:@"blur"] boolValue];
-    allowAppInteraction = [[[preferences dictionaryRepresentation] objectForKey:@"allowAppInteraction"] boolValue];
-    useHomeButton = [[[preferences dictionaryRepresentation] objectForKey:@"useHomeButton"] boolValue];
-    useQuickHomeButtonDismiss = [[[preferences dictionaryRepresentation] objectForKey:@"useQuickHomeButtonDismiss"] boolValue];
+    [self setAllowAppInteraction:[[[preferences dictionaryRepresentation] objectForKey:@"allowAppInteraction"] boolValue]];
+    [self setUseHomeButton:[[[preferences dictionaryRepresentation] objectForKey:@"useHomeButton"] boolValue]];
+    [self setUseQuickHomeButtonDismiss:[[[preferences dictionaryRepresentation] objectForKey:@"useQuickHomeButtonDismiss"] boolValue]];
+    [self setAllowRotation:[[[preferences dictionaryRepresentation] objectForKey:@"allowRotation"] boolValue]];
+    [self setDebug:[[[preferences dictionaryRepresentation] objectForKey:@"debug"] boolValue]];
 
-    if(_debug)HBLogDebug(@"useBlur: %d", useBlur);
-    if(_debug)HBLogDebug(@"allowAppInteraction: %d", allowAppInteraction);
-    if(_debug)HBLogDebug(@"useHomeButton: %d", useHomeButton);
-    if(_debug)HBLogDebug(@"useQuickHomeButtonDismiss: %d", useQuickHomeButtonDismiss);
+    if(_debug)HBLogDebug(@"blurStyle: %d", _blurStyle);
+    if(_debug)HBLogDebug(@"allowAppInteraction: %d", _allowAppInteraction);
+    if(_debug)HBLogDebug(@"useHomeButton: %d", _useHomeButton);
+    if(_debug)HBLogDebug(@"useQuickHomeButtonDismiss: %d", _useQuickHomeButtonDismiss);
+    if(_debug)HBLogDebug(@"allowRotation: %d", _allowRotation);
 
-}
-
--(BOOL)blurStyle {
-	return useBlur;
-}
-
--(void)setUseBlur:(BOOL)blur {
-	useBlur = blur;
-}
-
-
--(BOOL)allowAppInteraction {
-	return allowAppInteraction;
-}
-
--(void)setAllowAppInteraction:(BOOL)interaction {
-	allowAppInteraction = interaction;
-}
-
-
--(BOOL)useHomeButton {
-	return useHomeButton;
-}
-
--(void)setUseHomeButton:(BOOL)homeButton {
-	useHomeButton = homeButton;
-}
-
-
--(BOOL)useQuickHomeButtonDismiss {
-	return useQuickHomeButtonDismiss;
-}
-
--(void)setUseQuickHomeButtonDismiss:(BOOL)homeButtonDismiss {
-	useQuickHomeButtonDismiss = homeButtonDismiss;
 }
 
 

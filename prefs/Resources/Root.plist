@@ -5,12 +5,11 @@
 	<key>items</key>
 	<array>
 
-
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>ACTIVATION OPTIONS</string>
+			<string>Activation Options</string>
 		</dict>
 
 		<dict>
@@ -23,7 +22,7 @@
 			<key>bundle</key>
 			<string>LibActivator</string>
 			<key>activatorListener</key>
-			<string>com.leftyfl1p.sbtest/show</string>
+			<string>com.leftyfl1p.springround/show</string>
 		</dict>
 
 		<dict>
@@ -36,14 +35,14 @@
 			<key>bundle</key>
 			<string>LibActivator</string>
 			<key>activatorListener</key>
-			<string>com.leftyfl1p.sbtest/dismiss</string>
+			<string>com.leftyfl1p.springround/dismiss</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>VISUAL OPTIONS</string>
+			<string>Visual and Functional Options</string>
 		</dict>
 
 		<dict>
@@ -76,33 +75,6 @@
 
 		</dict>
 
-
-        <dict>
-            <key>cell</key>
-            <string>PSLinkCell</string>
-            <key>isController</key>
-            <string>1</string>
-            <key>label</key>
-            <string>Blur Options</string>
-            <key>detail</key>
-            <string>RiftBoardBlurListController</string> <!-- AboutController brings up teh standard about page -->
-        </dict>
-
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.leftyfl1p.springround</string>
-			<key>key</key>
-			<string>useBlur</string>
-			<key>label</key>
-			<string>Background Blur</string>
-			<key>PostNotification</key>
-    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
-		</dict>
-
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
@@ -110,6 +82,8 @@
 			<false/>
 			<key>defaults</key>
 			<string>com.leftyfl1p.springround</string>
+			<key>icon</key>
+			<string>AllowAppInteraction</string>
 			<key>key</key>
 			<string>allowAppInteraction</string>
 			<key>id</key>
@@ -130,7 +104,7 @@
 			<key>key</key>
 			<string>useQuickHomeButtonDismiss</string>
 			<key>label</key>
-			<string>Quick Home Button Dismiss</string>
+			<string>Quick Dismiss</string>
 			<key>PostNotification</key>
     		<string>com.leftyfl1p.springround/ReloadPrefs</string>
 		</dict>
@@ -138,18 +112,83 @@
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
-			<key>footerText</key>
-            <string>Thanks to @byturna for the preference icon!</string>
+			<key>label</key>
+            <string>Experimental</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.leftyfl1p.springround</string>
+			<key>key</key>
+			<string>allowRotation</string>
+			<key>label</key>
+			<string>Allow Rotation</string>
+			<key>PostNotification</key>
+    		<string>com.leftyfl1p.springround/ReloadPrefs</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+            <string>Credits</string>
 		</dict>
 
 		<dict>
 		    <key>cellClass</key>
 		    <string>HBTwitterCell</string>
 		    <key>label</key>
-		    <string>Tweak Updates</string>
+		    <string>Alex</string>
 		    <key>user</key>
 		    <string>leftyfl1p</string>
 		</dict>
+
+		<dict>
+		    <key>cell</key>
+		    <string>PSButtonCell</string>
+		    <key>cellClass</key>
+		    <string>HBLinkTableCell</string>
+		    <key>label</key>
+		    <string>Donate via PayPal</string>
+		    <key>url</key>
+		    <string>http://example.com/</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+            <string>fluent translators wanted! email me! free copy reward!</string>
+		</dict>
+
+		<dict>
+		    <key>cell</key>
+		    <string>PSButtonCell</string>
+		    <key>label</key>
+		    <string>Translation Credits</string>
+		    <key>icon</key>
+			<string>Translate</string>
+		</dict>		
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+
+		<dict>
+            <key>cell</key>
+            <string>PSLinkCell</string>
+            <key>isController</key>
+            <string>1</string>
+            <key>label</key>
+            <string>Support</string>
+            <key>detail</key>
+            <string>RiftBoardSupportListController</string>
+        </dict>
 
 	</array>
 	<key>title</key>

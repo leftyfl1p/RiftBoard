@@ -48,7 +48,8 @@
   //get rid of cast by making shreadinstance return the class instead of id
   //???????
 
-  if([[RBPrefs sharedInstance] BlurStyle] == 1) {
+
+  if([[RBPrefs sharedInstance] blurStyle] == 1) {
     _blurView = [[CKBlurView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds]];
     
     /* apple
@@ -96,7 +97,7 @@
     [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
 
   //dark blur
-  } else if([[RBPrefs sharedInstance] BlurStyle] == 2) {
+  } else if([[RBPrefs sharedInstance] blurStyle] == 2) {
     //NC BLUR VIEW
     _UIBackdropViewSettings *settings = [%c(_UIBackdropViewSettingsNone) settingsForPrivateStyle:1];
     _blurView = [[_UIBackdropView alloc] initWithFrame:[[(SBUIController *)[%c(SBUIController) sharedInstance] contentView] bounds] autosizesToFitSuperview:YES settings:settings];
@@ -144,7 +145,6 @@
 
 }
 
-//change arg1 to just bundle id. maybe split into 2 methods?
 -(void)dismiss {
   [self dismissWithBundleIdentifier:nil];
 }
@@ -158,6 +158,7 @@
   //animate views out
   [UIView animateWithDuration:0.2f animations:^{
     [_contentView setAlpha:0.0f];
+    //[[%c(SBIconController) sharedInstance] scatterAnimated:YES withCompletion:nil];
     [_blurView setAlpha:0.0f];
 
     /* hax >:/

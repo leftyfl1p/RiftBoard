@@ -12,193 +12,17 @@
 //static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"5.20.2016"
+#define expireDateString @"8.20.2016"
 
-static BOOL debug = YES;
+//temp?
+#define debug [[RBPrefs sharedInstance] debug]
+
+//static BOOL debug = YES;
 static NSString *previousBundleIdentifier;
-static BOOL testing = NO;
-
-
-%hook SBWallpaperLegibilitySettingsProvider
-- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-- (void)wallpaperDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-%end
-
-%hook _SBAccessibilityTintView
-- (void)_updateBackgroundColor {
-	%log;
-	%orig;
-}
-- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-- (void)wallpaperDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-
-%end
-
-%hook _SBIconWallpaperColorProvider
-- (void)_updateColors {
-	%log;
-	%orig;
-}
-- (void)_updateBlurForClient:(id)arg1 {
-	%log;
-	%orig;
-}
-- (void)_updateClient:(id)arg1 {
-	%log;
-	%orig;
-}
-- (void)_updateAllClients {
-	%log;
-	%orig;
-}
-- (void)wallpaperGeometryDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-- (void)wallpaperDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-%end
-
-%hook SBWallpaperEffectView
-
-- (void)_updateWallpaperAverageColor:(id)arg1 {
-	%log;
-	%orig;
-}
-- (void)wallpaperDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-
-%end
-
-%hook _UILegibilityImageView
-
-- (BOOL)_shouldAnimatePropertyWithKey:(id)arg1 {
-	%log;
-	return %orig;
-}
-%end
-
-%hook SBWallpaperController
-
-- (void)providerLegibilitySettingsChanged:(id)arg1 {
-	%log;
-	%orig;
-}
-
-- (void)_handleWallpaperGeometryChangedForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-- (void)_handleWallpaperLegibilitySettingsChanged:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-- (void)_handleWallpaperChangedForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-
-- (id)legibilitySettingsForVariant:(long long)arg1 {
-	%log;
-	return %orig;
-}
-
-- (void)_clearHomescreenLightForegroundBlurColor {
-	%log;
-	%orig;
-}
-- (void)_createHomescreenLightForegroundBlurColorIfNecessary {
-	%log;
-	%orig;
-}
-- (void)_updateBlurGeneration {
-	%log;
-	%orig;
-}
-%end
-
-
-%hook SBIconViewMap
-
-%new
--(void)test {
-	NSMapTable *_labelsForIcons = MSHookIvar<NSMapTable *>(self,"_labelsForIcons");
-	HBLogDebug(@"_labelsForIcons: %@", _labelsForIcons);
-
-
-}
-
-%end
-
-%hook _UILegibilitySettings
-
-- (id)shadowColor {
-	if(testing) {
-		return [UIColor blueColor];
-	}
-
-	return [UIColor greenColor];
-}
-
-%end
+//static BOOL testing = NO;
 
 
 %hook SBUIController
-
-%new
-- (UIImage *)captureView:(UIView *)view {
-
-    //hide controls if needed
-    CGRect rect = [view bounds];
-
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    [view.layer renderInContext:context];   
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return img;
-
-}
-
-
-- (void)wallpaperDidChangeForVariant:(long long)arg1 {
-	%log;
-	%orig;
-}
-- (void)wallpaperLegibilitySettingsDidChange:(id)arg1 forVariant:(long long)arg2 {
-	%log;
-	%orig;
-}
-
-
-%new;
--(void)testing {
-	testing = testing? NO:YES;
-}
 
 - (void)finishLaunching {
 	%orig;
@@ -224,8 +48,8 @@ static BOOL testing = NO;
 
 	//if current date is before expire date
 	if ([[NSDate date] compare:ExpireDate] == NSOrderedAscending) {
-		[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.sbtest/show"];
-		[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.sbtest/dismiss"];
+		[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
+		[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
 	} else {
 		//notice
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
@@ -233,36 +57,24 @@ static BOOL testing = NO;
 	}
 	//END BETA DATE SHIT
 
-	//XPC server
-	CPDistributedMessagingCenter *messagingCenter;
+	//XPC server FOR BLUR PREVIEW
+	/*CPDistributedMessagingCenter *messagingCenter;
 	// Center name must be unique, recommend using application identifier.
 	messagingCenter = [CPDistributedMessagingCenter centerNamed:@"com.leftyfl1p.springround"];
 	[messagingCenter runServerOnCurrentThread];
 	 
 	// Register Messages
 	//[messagingCenter registerForMessageName:@"messageThatHasInfo" target:self selector:@selector(handleMessageNamed:withUserInfo:)];
-	[messagingCenter registerForMessageName:@"ContentViewImage" target:self selector:@selector(ContentViewImage:)];
+	[messagingCenter registerForMessageName:@"ContentViewImage" target:self selector:@selector(ContentViewImage:)];*/
 	 
 
-}
-
-%new
--(NSDictionary*)ContentViewImage:(NSDictionary*)info {
-	NSData *imageData = UIImagePNGRepresentation([self captureView:[[%c(SBIconController) sharedInstance] view]]);
-
-	NSDictionary *dictionary = @{
-    @"image" : imageData,
-	};
-
-
-	return dictionary;
 }
 
 //rotation
 - (void)tearDownIconListAndBar {
 	//%log;
 	if([[SBTest sharedInstance] isActive]) {
-		HBLogDebug(@"tearDownIconListAndBar: is active, returning.");
+		if(debug)HBLogDebug(@"tearDownIconListAndBar: is active, returning.");
 		return;
 	}
 
@@ -285,17 +97,17 @@ static BOOL testing = NO;
 			
 			if([[SBTest sharedInstance] isActive]) {
 				[[SBTest sharedInstance] dismiss];
-				HBLogDebug(@"different bundleIdentifier received, dismissing.");
+				if(debug)HBLogDebug(@"different bundleIdentifier received, dismissing.");
 			}
 
 		} else {
-			HBLogDebug(@"same bundleIdentifier, doing nothing.");
+			if(debug)HBLogDebug(@"same bundleIdentifier, doing nothing.");
 		}
 	} else {
 		
 		if([[SBTest sharedInstance] isActive]) {
 			[[SBTest sharedInstance] dismiss];
-			HBLogDebug(@"did not receive SBApplication, dismissing.");
+			if(debug)HBLogDebug(@"did not receive SBApplication, dismissing.");
 		}
 	}
 	//}
@@ -315,8 +127,8 @@ static BOOL testing = NO;
 
 %new
 - (void)AXSBServerOrientationChange:(NSNotification *) notification {
-	HBLogDebug(@"AXSBServerOrientationChange: %@", notification);
-	if([[SBTest sharedInstance] isActive]) {
+	if(debug)HBLogDebug(@"AXSBServerOrientationChange: %@", notification);
+	if([[SBTest sharedInstance] isActive] && [[RBPrefs sharedInstance] allowRotation]) {
 		[[SBTest sharedInstance] handleRotation];
 	}
 }
@@ -524,7 +336,7 @@ handles:
 //for when user tries to invoke switcher while board is active
 -(void)viewDidLoad {//FIXME: use view did appear
 	if([[SBTest sharedInstance] isActive]) {
-		HBLogDebug(@"SBDeckSwitcherViewController viewDidLoad???");
+		if(debug)HBLogDebug(@"SBDeckSwitcherViewController viewDidLoad???");
 		[[SBTest sharedInstance] dismiss];
 	}
 
@@ -572,7 +384,7 @@ handles:
 //for when user tries to invoke switcher while board is active
 -(BOOL)_activateAppSwitcher {
 	if([[SBTest sharedInstance] isActive]) {
-		HBLogDebug(@"SBUIController _activateAppSwitcher???");
+		if(debug)HBLogDebug(@"SBUIController _activateAppSwitcher???");
 		[[SBTest sharedInstance] dismiss];
 	}
 
@@ -606,6 +418,8 @@ handles:
 	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
 	//init ungrouped hooks
 	%init;
+
+
 
 	//[[RBPrefs sharedInstance] reloadPrefs];
 

@@ -1,9 +1,11 @@
 include $(THEOS)/makefiles/common.mk
 #rename bundle
 BUNDLE_NAME = RiftBoard
-RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m
+RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m RiftBoardSupportListController.m
+
+#$(wildcard MotionBlur/*.m)
 RiftBoard_INSTALL_PATH = /Library/PreferenceBundles
-RiftBoard_FRAMEWORKS = UIKit
+RiftBoard_FRAMEWORKS = UIKit QuartzCore Accelerate
 RiftBoard_PRIVATE_FRAMEWORKS = Preferences AppSupport
 RiftBoard_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 

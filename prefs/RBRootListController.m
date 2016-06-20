@@ -1,6 +1,19 @@
 #include "RBRootListController.h"
+#include <substrate.h>
 
 @implementation RBRootListController
+
+- (id)init {
+    
+    if (self = [super init]) {
+        HBAppearanceSettings *appearanceSettings = [[HBAppearanceSettings alloc] init];
+        appearanceSettings.tintColor = [UIColor colorWithRed:0 green:0.478 blue:1 alpha:1];
+        self.hb_appearanceSettings = appearanceSettings;
+    }
+
+    return self;
+}
+
 
 - (NSArray *)specifiers {
 	if (!_specifiers) {
@@ -18,90 +31,72 @@
 	return [NSURL URLWithString:@"https://cydia.saurik.com/package/com.leftyfl1p.springround"];
 }
 
-+ (UIColor *)hb_tintColor {
+/*+ (UIColor *)hb_tintColor {
 	return [UIColor colorWithRed:0 green:0.478 blue:1 alpha:1];
-}
-
--(void)setBlurStyle:(NSString *)value {
-	int val = [value intValue];
-	HBLogInfo(@"value: %@", [value class]);
-
-	PSSpecifier *interactionSpecifier = [_specifiersByID objectForKey:@"allowAppInteraction"];
-	UISwitch *interactionSwitch = [interactionSpecifier propertyForKey:@"control"];
-
-	if (val != 0) {
-		HBLogInfo(@"value is not zero???");
-		[interactionSwitch setEnabled:NO];
-		[interactionSwitch setOn:NO];
-	} else {
-		[interactionSwitch setEnabled:YES];
-		[interactionSwitch setOn:[[interactionSpecifier propertyForKey:@"value"] boolValue]];
-	}
-
-}
+}*/
 
 -(void)updateInteractionSwitch {
-	PSSpecifier *interactionSpecifier = [_specifiersByID objectForKey:@"allowAppInteraction"];
-	UISwitch *interactionSwitch = [interactionSpecifier propertyForKey:@"control"];
-	BOOL interactionValue = [[interactionSpecifier propertyForKey:@"value"] boolValue];
+	BOOL interactionValue = [[[self interactionSpecifier] propertyForKey:@"value"] boolValue];
 
 	PSSpecifier *blurSpecifier = [_specifiersByID objectForKey:@"blur"];
 	int blurValue = [[blurSpecifier propertyForKey:@"value"] intValue];
-	HBLogInfo(@"blurValue: %d", blurValue);
 
+	//HBLogInfo(@"asdfasdfsad: %d", self.interactionSwitch.enabled);
 	if (blurValue != 0) {
-		[interactionSwitch setEnabled:NO];
-		[interactionSwitch setOn:NO];
+		[self.interactionSwitch setEnabled:NO];
+		[self.interactionSwitch setOn:NO animated:YES];
 	} else {
-		[interactionSwitch setEnabled:YES];
-		[interactionSwitch setOn:interactionValue];
+		[self.interactionSwitch setEnabled:YES];
+		[self.interactionSwitch setOn:interactionValue animated:YES];
 	}
 }
 
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
 	[super setPreferenceValue:value specifier:specifier];
-	HBLogInfo(@"value: %@", value);
-	
+
 	if ([[specifier propertyForKey:@"id"] isEqualToString:@"blur"]) {
 
-		[self updateInteractionSwitch];
-		/*
-		PSSpecifier *interactionSpecifier = [_specifiersByID objectForKey:@"allowAppInteraction"];
-		UISwitch *interactionSwitch = [interactionSpecifier propertyForKey:@"control"];
-		BOOL interactionValue = [[interactionSpecifier propertyForKey:@"value"] boolValue];
-
-		int blurValue = [value intValue];
-
-		if (blurValue != 0) {
-			[interactionSwitch setEnabled:NO];
-			[interactionSwitch setOn:NO];
-		} else {
-			[interactionSwitch setEnabled:YES];
-			[interactionSwitch setOn:interactionValue];
-		}*/
-
-	}
-
-
-
-}
-
--(UISwitch *)interactionSwitch {
-	for (PSSpecifier *specifier in [self specifiers]) {
-		if ([[specifier propertyForKey:@"control"] isKindOfClass:[UISwitch class]] && [[specifier propertyForKey:@"key"] isEqualToString:@"allowAppInteraction"]) {
-			return [specifier propertyForKey:@"control"];
+		if (self.interactionSwitch.enabled)
+		{
+			[self flash];
 		}
+		[self updateInteractionSwitch];
 	}
 
-	return nil;
 }
 
 - (void)viewDidAppear:(BOOL)arg1 {
 	[super viewDidAppear:arg1];
 
-	PSSpecifier *blurSpecifier = [_specifiersByID objectForKey:@"blur"];
-	//int blurValue = [[blurSpecifier propertyForKey:@"value"] intValue];
-	[self setBlurStyle:[blurSpecifier propertyForKey:@"value"]];
+	[self updateInteractionSwitch];
+
+}
+
+-(PSSpecifier *)interactionSpecifier {
+	return [_specifiersByID objectForKey:@"allowAppInteraction"];
+}
+
+-(UISwitch *)interactionSwitch {
+	return [[self interactionSpecifier] propertyForKey:@"control"];
+}
+
+
+-(void)flash {
+	UITableViewCell * interactionCell = [[self interactionSpecifier] propertyForKey:@"cellObject"];
+	//UIView *background = [[UIView alloc] initWithFrame:interactionCell.frame];
+	UIColor *backgroundColor = interactionCell.backgroundColor;
+
+	[UIView animateWithDuration:0.05 animations:^{
+		interactionCell.backgroundColor = [UIColor redColor];
+    } completion:^(BOOL finished) {
+    	[UIView animateWithDuration:1.05 animations:^{
+			interactionCell.backgroundColor = backgroundColor;
+    	} completion:^(BOOL finished) {
+    	
+    	}];
+
+    }];
+
 }
 
 @end
