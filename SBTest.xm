@@ -47,6 +47,7 @@
 
   //get rid of cast by making shreadinstance return the class instead of id
   //???????
+  /// [[(SBUIController *)[%c(SBUIController) sharedInstance] 
 
 
   if([[RBPrefs sharedInstance] blurStyle] == 1) {
@@ -138,9 +139,33 @@
         HBLogInfo(@"completed");
     }];
 
+  //legibility
+  BOOL useLegibility = YES;
+
+  if(useLegibility)
+  {
+    UIStatusBarStyleRequest *statusBarStyle = [[[%c(SpringBoard) sharedApplication] _accessibilityFrontMostApplication] statusBarStyleRequest];
+    HBLogError(@"sdf %@", statusBarStyle);
+    HBLogError(@"style: %lld", statusBarStyle.style);
+    if(statusBarStyle != nil)
+    {
+      self.legibilitySettings = [[%c(_UILegibilitySettings) alloc] initWithStyle:statusBarStyle.style];
+      // if(statusBarStyle.style == 1)
+      // {
+      //   self.legibilitySettings = [[%c(_UILegibilitySettings) alloc] initWithStyle:1];
+      // }
+      // else if(statusBarStyle.style == 2)
+      // {
+      //   self.legibilitySettings = [[%c(_UILegibilitySettings) alloc] initWithStyle:2];
+      // }
+    }
+  }
+
+  
 
   //reveal icons
   [[%c(SBUIController) sharedInstance] restoreContentAndUnscatterIconsAnimated:YES];
+  [self updateLegibility];
 
 
 }
@@ -192,6 +217,9 @@
 
     //put springboard back where we found it
     _window.windowLevel = _beforeWindowLevel;
+
+    //reset legibility
+    [self updateLegibility];
 
     if(bundleIdentifier) {
       [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
@@ -246,13 +274,14 @@
 //check if blur view is visible. make blur view not init everytime and just hide it
 -(BOOL)isActive {
 
+  //refactor active = ...
   _window.windowLevel != _beforeWindowLevel? _isActive = YES : _isActive = NO;
 
   return _isActive;
 
 }
 
-
+//delete?
 -(void)flip {
   
 
@@ -277,7 +306,12 @@
 
 //check in frontmost changed if app is something because might be able to get aroudn when trying ot activate when app is loading then
 
- 
+
+-(void)updateLegibility {
+  [[%c(SBUIController) sharedInstance] _updateLegibility];
+  [[%c(SBUIController) sharedInstance] updateStatusBarLegibility];
+  [[%c(SBUIController) sharedInstance] wallpaperDidChangeForVariant:1];
+}
 
 
 @end

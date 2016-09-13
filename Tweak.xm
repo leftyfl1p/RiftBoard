@@ -27,34 +27,27 @@ static NSString *previousBundleIdentifier;
 - (void)finishLaunching {
 	%orig;
 	//notify when the frontmost application changes
-	[[NSNotificationCenter defaultCenter] addObserver:self
-        								  selector:@selector(frontmostApplicationChanged:)
-        								  name:@"SBFrontmostDisplayChangedNotification"
-        								  object:nil];
-//	
 
-[[NSNotificationCenter defaultCenter] addObserver:self
-        								  selector:@selector(AXSBServerOrientationChange:)
-        								  name:@"AXSBServerOrientationChange"
-        								  object:nil];
 
-	//beta date shit
-	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-	NSLocale *posix = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-	[formatter setLocale:posix];
-	[formatter setDateFormat:@"M.d.y"];
+	// //beta date shit
+	// NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+	// NSLocale *posix = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+	// [formatter setLocale:posix];
+	// [formatter setDateFormat:@"M.d.y"];
 
-	NSDate *ExpireDate = [formatter dateFromString:expireDateString];
+	// NSDate *ExpireDate = [formatter dateFromString:expireDateString];
 
-	//if current date is before expire date
-	if ([[NSDate date] compare:ExpireDate] == NSOrderedAscending) {
-		[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
-		[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
-	} else {
-		//notice
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
-		[alert show];
-	}
+	// //if current date is before expire date
+	// if ([[NSDate date] compare:ExpireDate] == NSOrderedAscending) {
+		
+	// } else {
+	// 	//notice
+	// 	//UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RiftBoard" message:@"This beta build has expired. Please update in Cydia. If there is no update please yell at @leftyfl1p on twitter or on reddit." delegate:nil cancelButtonTitle:@"you got it (☞ﾟヮﾟ)☞" otherButtonTitles:nil];
+	// 	//[alert show];
+	// }
+
+
+	
 	//END BETA DATE SHIT
 
 	//XPC server FOR BLUR PREVIEW
@@ -70,10 +63,44 @@ static NSString *previousBundleIdentifier;
 
 }
 
+//START LEGIBILITY TESTS
+
+
+-(id)_currentFolderLegibilitySettings {
+	%log;
+	return %orig;
+
+	if([[SBTest sharedInstance] isActive] && [[SBTest sharedInstance] legibilitySettings])
+	{
+		return [[SBTest sharedInstance] legibilitySettings];
+	}
+	else
+	{
+		return %orig;
+	}
+}
+
+
+-(id)_legibilitySettings {
+	%log;
+	return %orig;
+
+	if([[SBTest sharedInstance] isActive] && [[SBTest sharedInstance] legibilitySettings])
+	{
+		return [[SBTest sharedInstance] legibilitySettings];
+	}
+	else
+	{
+		return %orig;
+	}
+}
+
+//END LEGIBILITY TESTS
+
 //rotation
 - (void)tearDownIconListAndBar {
-	//%log;
-	if([[SBTest sharedInstance] isActive]) {
+	if([[SBTest sharedInstance] isActive])
+	{
 		if(debug)HBLogDebug(@"tearDownIconListAndBar: is active, returning.");
 		return;
 	}
@@ -110,19 +137,7 @@ static NSString *previousBundleIdentifier;
 			if(debug)HBLogDebug(@"did not receive SBApplication, dismissing.");
 		}
 	}
-	//}
 
-	//[[SBTest sharedInstance] dismiss];
-
-
-	//test to make things nicer when trying to invoke board while switching apps.
-	//sb window resets level when frontmost app changes anyways so this doesnt work :(
-	//id test = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
-	//if lockscreen is present this will be SBLockScreenViewController
-	/*if(![test isKindOfClass:[%c(SBApplication) class]]) {
-		HBLogDebug(@"did not receive app. dismissing");
-		//[[SBTest sharedInstance] dismiss];
-	}*/
 }
 
 %new
@@ -240,6 +255,7 @@ static NSString *previousBundleIdentifier;
 
 %hook SBIconController
 
+//handle opening apps
 - (void)_launchIcon:(id)arg1 {
 
 	if([[SBTest sharedInstance] isActive]) {
@@ -266,7 +282,7 @@ static NSString *previousBundleIdentifier;
 		else {
 			//icon should be an app
 			SBApplicationIcon *icon = (SBApplicationIcon *)arg1;
-			NSString * bundleIdentifier = icon.applicationBundleID;
+			NSString *bundleIdentifier = icon.applicationBundleID;
 			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
 		}
 	}
@@ -276,17 +292,9 @@ static NSString *previousBundleIdentifier;
 
 //make sure reachability works while board is active
 - (_Bool)_shouldRespondToReachability {
-	if([[SBTest sharedInstance] isActive]) {
-		return YES;
-	}
+	if([[SBTest sharedInstance] isActive]) return YES;
+
 	return %orig;
-}
-
--(id)legibilitySettings {
-	id orig = %orig;
-
-	//[orig setShadowColor:[UIColor blueColor]];
-	return orig;
 }
 
 
@@ -369,9 +377,27 @@ handles:
 	return %orig;
 }
 
-
 %end
 
+%hook SpringBoard
+
+-(void)applicationDidFinishLaunching:(id)arg1 {
+	%orig;
+
+	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
+        								  selector:@selector(AXSBServerOrientationChange:)
+        								  name:@"AXSBServerOrientationChange"
+        								  object:nil];
+//
+	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
+        								  selector:@selector(frontmostApplicationChanged:)
+        								  name:@"SBAppWillBecomeForeground"
+        								  object:nil];
+//
+
+}
+
+%end
 
 //ios9 group
 %end
@@ -415,6 +441,12 @@ handles:
 
 %ctor {
 	//initialize version specific hooks
+
+	//dlopen("/usr/lib/libactivator.dylib", RTLD_LAZY);
+	[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
+	[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
+
+
 	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
 	//init ungrouped hooks
 	%init;

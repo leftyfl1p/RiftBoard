@@ -40,6 +40,7 @@
 @property (nonatomic) double currentWindowLevel;
 @property (nonatomic) BOOL isActive;
 @property (nonatomic) BOOL deviceIsUnlocked;
+@property (nonatomic) _UILegibilitySettings *legibilitySettings;
 //@property (nonatomic) double orig;
 
 + (id)sharedInstance;
@@ -52,5 +53,7 @@
 -(BOOL)asssignedToHomeButton;
 -(void)dismiss;
 -(BOOL)isActive;
--(void)flip;
+-(void)flip;//idk????
+
+-(void)updateLegibility;
 @end

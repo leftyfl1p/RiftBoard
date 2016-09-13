@@ -22,6 +22,8 @@
 - (void)activate;
 - (void)setFlag:(long long)arg1 forActivationSetting:(unsigned int)arg2;
 - (BOOL)statusBarHidden;
+
+-(id)statusBarStyleRequest;
 @end
 
 @interface SBApplicationController : NSObject
@@ -89,6 +91,15 @@ void receivedPortraitRotate();
 
 @end
 
+
+@interface SBUIController (iOS933) //find out when these were really added
+-(void)_updateLegibility;
+-(void)updateStatusBarLegibility;
+-(void)wallpaperDidChangeForVariant:(long long)arg1;
+-(id)_legibilitySettings;
+
+@end
+
 @interface SBUIController (newStuff)
 -(UIImage *)ContentViewImage:(NSDictionary*)info;
 -(UIImage *)captureView:(UIView *)view;
@@ -107,7 +118,7 @@ void receivedPortraitRotate();
 -(int)interfaceOrientationForCurrentDeviceOrientation;
 -(long long)activeInterfaceOrientation;
 -(void)noteInterfaceOrientationChanged:(int)arg1 duration:(float)arg2 ;
--(id)_accessibilityFrontMostApplication;
+-(SBApplication *)_accessibilityFrontMostApplication;
 -(id)_accessibilityTopDisplay;
 -(id)_accessibilityRunningApplications;
 //-(int)_frontMostAppOrientation;
@@ -366,4 +377,8 @@ void receivedPortraitRotate();
 
 - (void)setShadowColor:(id)arg1;
 
+@end
+
+@interface UIStatusBarStyleRequest : NSObject
+@property (nonatomic,readonly) long long style;
 @end

@@ -1,14 +1,14 @@
 ARCHS = armv7 armv7s arm64
 include $(THEOS)/makefiles/common.mk
 
-#THEOS_DEVICE_IP = 10.0.1.63
+THEOS_DEVICE_IP = 10.0.1.4
 
 TWEAK_NAME = sbtest
 sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m
 sbtest_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
 sbtest_PRIVATE_FRAMEWORKS = AppSupport
-sbtest_LIBRARIES = activator substrate
-sbtest_CFLAGS = -fobjc-arc
+sbtest_LIBRARIES = activator substrate objcipc
+sbtest_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 sbtest_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 sbtest_LDFLAGS += -Wl,-segalign,4000
 
@@ -27,4 +27,5 @@ include $(THEOS)/makefiles/bundle.mk
 after-install::
 	install.exec "killall -9 SpringBoard"
 SUBPROJECTS += prefs
+SUBPROJECTS += uikittests
 include $(THEOS_MAKE_PATH)/aggregate.mk
