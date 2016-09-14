@@ -68,7 +68,7 @@ void receivedPortraitRotate();
 
 - (void)restoreContentAndUnscatterIconsAnimated:(BOOL)animated;
 -(void)activateApplicationAnimated:(id)arg1 ;
-+(id)sharedInstance;
++(SBUIController *)sharedInstance;
 -(void)activateApplicationAnimatedFromIcon:(id)arg1 fromLocation:(int)arg2;
 -(id)window;
 -(UIView *)contentView;

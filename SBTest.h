@@ -53,7 +53,6 @@
 -(BOOL)asssignedToHomeButton;
 -(void)dismiss;
 -(BOOL)isActive;
--(void)flip;//idk????
 
 -(void)updateLegibility;
 @end
