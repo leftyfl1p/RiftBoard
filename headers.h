@@ -1,4 +1,4 @@
-
+#define debug(text, ...) if([[RBPrefs sharedInstance] debug]) HBLogDebug((text), ##__VA_ARGS__)
 
 @interface SBWindow : UIWindow
 @end

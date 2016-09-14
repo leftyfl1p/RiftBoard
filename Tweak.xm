@@ -14,8 +14,9 @@
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
 #define expireDateString @"8.20.2016"
 
-//temp?
-#define debug [[RBPrefs sharedInstance] debug]
+
+
+
 
 //static BOOL debug = YES;
 static NSString *previousBundleIdentifier;
@@ -101,7 +102,7 @@ static NSString *previousBundleIdentifier;
 - (void)tearDownIconListAndBar {
 	if([[SBTest sharedInstance] isActive])
 	{
-		if(debug)HBLogDebug(@"tearDownIconListAndBar: is active, returning.");
+		debug(@"tearDownIconListAndBar: is active, returning.");
 		return;
 	}
 
@@ -112,7 +113,7 @@ static NSString *previousBundleIdentifier;
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	if(debug)HBLogDebug(@"frontmostApplicationChanged: %@", notification);
+	debug(@"frontmostApplicationChanged: %@", notification);
 	//if lockscreen is present this will be SBLockScreenViewController
 	id frontmostDisplay = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
 	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
@@ -124,17 +125,17 @@ static NSString *previousBundleIdentifier;
 			
 			if([[SBTest sharedInstance] isActive]) {
 				[[SBTest sharedInstance] dismiss];
-				if(debug)HBLogDebug(@"different bundleIdentifier received, dismissing.");
+				debug(@"different bundleIdentifier received, dismissing.");
 			}
 
 		} else {
-			if(debug)HBLogDebug(@"same bundleIdentifier, doing nothing.");
+			debug(@"same bundleIdentifier, doing nothing.");
 		}
 	} else {
 		
 		if([[SBTest sharedInstance] isActive]) {
 			[[SBTest sharedInstance] dismiss];
-			if(debug)HBLogDebug(@"did not receive SBApplication, dismissing.");
+			debug(@"did not receive SBApplication, dismissing.");
 		}
 	}
 
@@ -142,7 +143,7 @@ static NSString *previousBundleIdentifier;
 
 %new
 - (void)AXSBServerOrientationChange:(NSNotification *) notification {
-	if(debug)HBLogDebug(@"AXSBServerOrientationChange: %@", notification);
+	debug(@"AXSBServerOrientationChange: %@", notification);
 	if([[SBTest sharedInstance] isActive] && [[RBPrefs sharedInstance] allowRotation]) {
 		[[SBTest sharedInstance] handleRotation];
 	}
@@ -154,24 +155,24 @@ static NSString *previousBundleIdentifier;
 -(BOOL)clickedMenuButton {
 	//if activator single home button press event is assigned & board isnt already active & app switcher isnt showing & device is currently in an app
 	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
-		if(debug)HBLogDebug(@"asssignedToHomeButton and appropriate to show. showing.");
+		debug(@"asssignedToHomeButton and appropriate to show. showing.");
 		[[SBTest sharedInstance] show];
 
 	} else if([[SBTest sharedInstance] isActive]) {
 
 		if([[RBPrefs sharedInstance] useQuickHomeButtonDismiss]) {
 
-			if(debug)HBLogDebug(@"useQuickHomeButtonDismiss is on, dismissing");
+			debug(@"useQuickHomeButtonDismiss is on, dismissing");
 
 			if([[%c(SBIconController) sharedInstance] isEditing]) {
-				if(debug)HBLogDebug(@"but was editing.");
+				debug(@"but was editing.");
 				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
 			} else {
 				[[SBTest sharedInstance] dismiss];
 			}
 			
 		} else {
-			if(debug)HBLogDebug(@"useQuickHomeButtonDismiss is off");
+			debug(@"useQuickHomeButtonDismiss is off");
 			//handle siri being invoked while open
 			if([%c(SBAssistantController) isAssistantVisible]) {
 				return %orig;
@@ -184,7 +185,7 @@ static NSString *previousBundleIdentifier;
 			-no open folders
 			-must be on first page
 			*/
-			if(debug) {
+			if([[SBTest sharedInstance] debug]) {
 				int currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex;
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
@@ -197,7 +198,7 @@ static NSString *previousBundleIdentifier;
 				&& ![[%c(SBIconController) sharedInstance] isEditing] 
 				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
 
-				if(debug)HBLogDebug(@"should close here");
+				debug(@"should close here");
 				[[SBTest sharedInstance] dismiss];
 			} else
 
@@ -212,7 +213,7 @@ static NSString *previousBundleIdentifier;
 			} else {
 
 				//tell icons to handle the press
-				if(debug)HBLogDebug(@"icons handleHomeButtonTap");
+				debug(@"icons handleHomeButtonTap");
 				[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
 			}
 
@@ -344,7 +345,7 @@ handles:
 //for when user tries to invoke switcher while board is active
 -(void)viewDidLoad {//FIXME: use view did appear
 	if([[SBTest sharedInstance] isActive]) {
-		if(debug)HBLogDebug(@"SBDeckSwitcherViewController viewDidLoad???");
+		debug(@"SBDeckSwitcherViewController viewDidLoad???");
 		[[SBTest sharedInstance] dismiss];
 	}
 
@@ -410,7 +411,7 @@ handles:
 //for when user tries to invoke switcher while board is active
 -(BOOL)_activateAppSwitcher {
 	if([[SBTest sharedInstance] isActive]) {
-		if(debug)HBLogDebug(@"SBUIController _activateAppSwitcher???");
+		debug(@"SBUIController _activateAppSwitcher???");
 		[[SBTest sharedInstance] dismiss];
 	}
 

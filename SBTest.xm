@@ -43,7 +43,7 @@
   }
 
 
-  if([[RBPrefs sharedInstance] debug])HBLogInfo(@"RiftBoard: Start Loading...");
+  debug(@"RiftBoard: Start Loading...");
 
   //get rid of cast by making shreadinstance return the class instead of id
   //???????
@@ -136,7 +136,7 @@
     //show status bar
     [[%c(SpringBoard) sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     } completion:^(BOOL completed) {
-        HBLogInfo(@"completed");
+        debug(@"completed");
     }];
 
   //legibility
@@ -165,7 +165,7 @@
 
   //reveal icons
   [[%c(SBUIController) sharedInstance] restoreContentAndUnscatterIconsAnimated:YES];
-  [self updateLegibility];
+  //[self updateLegibility];
 
 
 }
@@ -179,7 +179,7 @@
    if(![self isActive]) {
     return;
   }
-  if([[RBPrefs sharedInstance] debug])HBLogInfo(@"RiftBoard: dismissing...");
+  debug(@"RiftBoard: dismissing...");
   //animate views out
   [UIView animateWithDuration:0.2f animations:^{
     [_contentView setAlpha:0.0f];
@@ -259,7 +259,7 @@
 -(BOOL)asssignedToHomeButton {
   for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
       if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
-        if([[RBPrefs sharedInstance] debug])HBLogDebug(@"single home button assigned, returning YES.");
+        debug(@"single home button assigned, returning YES.");
         return YES;
       }
     }
