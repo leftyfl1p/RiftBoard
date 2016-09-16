@@ -124,6 +124,9 @@ void receivedPortraitRotate();
 //-(int)_frontMostAppOrientation;
 -(void)_revealSpotlight;
 - (void)_deactivateReachability;
+-(BOOL)isLocked;
+-(BOOL)homeScreenSupportsRotation;
+
 
 
 //rotation

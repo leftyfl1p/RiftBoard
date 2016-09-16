@@ -4,32 +4,21 @@
 #import "SBTestActivatorEventShow.h"
 #import "SBTestActivatorEventDismiss.h"
 #import <libactivator/libactivator.h>
-#import <AppSupport/CPDistributedMessagingCenter.h>
 
 #import <notify.h>
 
-
-//static int beforeWindowLevel = -1;
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
-#define expireDateString @"8.20.2016"
 
-
-
-
-
-//static BOOL debug = YES;
 static NSString *previousBundleIdentifier;
-//static BOOL testing = NO;
-
 
 %hook SBUIController
 
 //rotation
 - (void)tearDownIconListAndBar {
-	if([[SBTest sharedInstance] isActive])
+	if([[SBTest sharedInstance] isActive] /*&& ![(SpringBoard *)[%c(SpringBoard) sharedApplication] isLocked]*/)
 	{
-		debug(@"tearDownIconListAndBar: is active, returning.");
+		debug(@"tearDownIconListAndBar: board is active, returning.");
 		return;
 	}
 
@@ -40,9 +29,9 @@ static NSString *previousBundleIdentifier;
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
-	debug(@"frontmostApplicationChanged: %@", notification);
+	debug(@"frontmostApplicationChanged: %@", notification.object);
 	//if lockscreen is present this will be SBLockScreenViewController
-	id frontmostDisplay = [notification.userInfo objectForKey:@"SBFrontmostDisplayKey"];
+	id frontmostDisplay = notification.object;
 	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
 		NSString *bundleIdentifier = ((SBApplication *)frontmostDisplay).bundleIdentifier;
 		if(previousBundleIdentifier.length == 0) previousBundleIdentifier = bundleIdentifier;
@@ -76,12 +65,24 @@ static NSString *previousBundleIdentifier;
 	}
 }
 
+-(void)_deviceLockStateChanged:(NSNotification *)notification {
+	HBLogInfo(@"SBDeviceLockStateChangedNotification: %@", notification);
+	if ([notification isKindOfClass:[NSNotification class]])
+	{
+		if([[notification.userInfo objectForKey:@"kSBNotificationKeyState"] intValue] == 1)
+		{
+			debug(@"_deviceLockStateChanged dismissing");
+			[[SBTest sharedInstance] dismiss];
+		}
+	}
+	
 
+}
 
 //this entire thing could probably use some refactoring
 -(BOOL)clickedMenuButton {
 	//if activator single home button press event is assigned & board isnt already active & app switcher isnt showing & device is currently in an app
-	if([[SBTest sharedInstance] asssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
+	if([[SBTest sharedInstance] isAsssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
 		debug(@"asssignedToHomeButton and appropriate to show. showing.");
 		[[SBTest sharedInstance] show];
 
@@ -112,7 +113,7 @@ static NSString *previousBundleIdentifier;
 			-no open folders
 			-must be on first page
 			*/
-			if([[SBTest sharedInstance] debug]) {
+			if([[RBPrefs sharedInstance] debug]) {
 				int currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex;
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
@@ -143,13 +144,8 @@ static NSString *previousBundleIdentifier;
 				debug(@"icons handleHomeButtonTap");
 				[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
 			}
-
-			
-			
 			
 		}
-
-		
 
 	} else {
 		
@@ -164,6 +160,29 @@ static NSString *previousBundleIdentifier;
 %end
 
 %hook SpringBoard
+
+-(void)applicationDidFinishLaunching:(id)arg1 {
+	%orig;
+
+	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
+        								  selector:@selector(AXSBServerOrientationChange:)
+        								  name:@"AXSBServerOrientationChange"
+        								  object:nil];
+//
+	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
+        								  selector:@selector(frontmostApplicationChanged:)
+        								  name:@"SBAppWillBecomeForeground"
+        								  object:nil];
+//
+	// [[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
+ //        								  selector:@selector(SBDeviceLockStateChangedNotification:)
+ //        								  name:@"SBDeviceLockStateChangedNotification"
+ //        								  object:nil];
+//
+
+
+
+}
 
 - (void)setStatusBarHidden:(BOOL)hidden withAnimation:(UIStatusBarAnimation)animation {
 	if([[SBTest sharedInstance] isActive]) {
@@ -303,26 +322,6 @@ handles:
 		return NO;
 	}
 	return %orig;
-}
-
-%end
-
-%hook SpringBoard
-
--(void)applicationDidFinishLaunching:(id)arg1 {
-	%orig;
-
-	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
-        								  selector:@selector(AXSBServerOrientationChange:)
-        								  name:@"AXSBServerOrientationChange"
-        								  object:nil];
-//
-	[[NSNotificationCenter defaultCenter] addObserver:[%c(SBUIController) sharedInstance]
-        								  selector:@selector(frontmostApplicationChanged:)
-        								  name:@"SBAppWillBecomeForeground"
-        								  object:nil];
-//
-
 }
 
 %end

@@ -49,8 +49,9 @@
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier;
 -(BOOL)isInApplication;
 -(void)handleRotation;
+-(void)handleRotationWithDuration:(double)duration;
 //-(void)dismissWithCompletionHandler:(void(^)(void))arg3;
--(BOOL)asssignedToHomeButton;
+-(BOOL)isAsssignedToHomeButton;
 -(void)dismiss;
 -(BOOL)isActive;
 

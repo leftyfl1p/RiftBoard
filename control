@@ -4,7 +4,7 @@ Depends: mobilesubstrate, libactivator, ws.hbang.common
 Version: 0.0.1
 Architecture: iphoneos-arm
 Description: Homescreen icons in any app!
-Maintainer: leftyfl1p <leftyfl1p@me.com>
-Author: leftyfl1p <leftyfl1p@me.com>
+Maintainer: leftyfl1p <leftyfl1p@icloud.com>
+Author: leftyfl1p <leftyfl1p@icloud.com>
 Section: Tweaks
-Depiction: https://leftyfl1p.github.io/depictions/?p=com.leftyfl1p.springround
+Depiction: https://leftyfl1p.github.io/depictions/riftboard

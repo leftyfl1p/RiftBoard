@@ -6,7 +6,6 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = sbtest
 sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m
 sbtest_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
-sbtest_PRIVATE_FRAMEWORKS = AppSupport
 sbtest_LIBRARIES = activator substrate objcipc
 sbtest_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 sbtest_EXTRA_FRAMEWORKS += Cephei CepheiPrefs

@@ -36,17 +36,20 @@
     //load everything here
     
     //cant open twice or open while app switcher is showing
-    if([self isActive] || [[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
+    if(_isActive || [[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
         return;
     }
+        
+    debug(@"Start Loading...");
+
+    debug(@"handle initial rotation");
+    //so springboard is in the correct orientation when loaded.
+    if ([[RBPrefs sharedInstance] allowRotation] && [(SpringBoard *)[%c(SpringBoard) sharedApplication] homeScreenSupportsRotation])
+    {
+        [[SBTest sharedInstance] handleRotationWithDuration:0.0];
+    }
     
-    
-    debug(@"RiftBoard: Start Loading...");
-    
-    //get rid of cast by making shreadinstance return the class instead of id
-    //???????
-    /// [[(SBUIController *)[%c(SBUIController) sharedInstance]
-    
+
     //light blur
     if([[RBPrefs sharedInstance] blurStyle] == 1) {
         _blurView = [[CKBlurView alloc] initWithFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
@@ -69,7 +72,7 @@
         [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
     }
     
-    if (!_blurView && ![[RBPrefs sharedInstance] allowAppInteraction]){
+    if(!_blurView && ![[RBPrefs sharedInstance] allowAppInteraction]){
         //create transparent view. explain more how this works.
         CGRect screenBound = [[UIScreen mainScreen] bounds];
         CGSize screenSize = screenBound.size;
@@ -102,8 +105,8 @@
 }
 
 -(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier {
-    //[self dismiss];
-    if(![self isActive]) return;
+
+    if(!_isActive) return;
     
     debug(@"dismissing...");
     //animate views out
@@ -146,8 +149,7 @@
         //reset legibility
         [self updateLegibility];
         
-        if(bundleIdentifier)
-        {
+        if(bundleIdentifier) {
             [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
         }
         
@@ -161,19 +163,24 @@
     
     //and deactivate reachability
     [(SpringBoard *)[%c(SpringBoard) sharedApplication] _deactivateReachability];
-    
+
+    [[%c(SBUIController) sharedInstance] tearDownIconListAndBar];
 }
 
--(void)handleRotation {
+-(void)handleRotationWithDuration:(double)duration {
     //[(SpringBoard *)[%c(SpringBoard) sharedApplication] updateNativeOrientationWithOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] updateMirroredDisplays: YES];
-    [[%c(SBUIController) sharedInstance] forceIconInterfaceOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] duration:0.4];
+    [[%c(SBUIController) sharedInstance] forceIconInterfaceOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] duration:duration];
     [[%c(SpringBoard) sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     if(_blurView) {
         [_blurView setFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
     }
 }
 
--(BOOL)asssignedToHomeButton {
+-(void)handleRotation {
+    [self handleRotationWithDuration:0.4];
+}
+
+-(BOOL)isAsssignedToHomeButton {
     for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
         if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
             debug(@"single home button assigned, returning YES.");
@@ -186,7 +193,6 @@
 -(BOOL)isInApplication {
     return [[%c(SpringBoard) sharedApplication] _accessibilityFrontMostApplication] != nil;
 }
-
 
 //check if blur view is visible. make blur view not init everytime and just hide it
 -(BOOL)isActive {
@@ -202,6 +208,5 @@
     [[%c(SBUIController) sharedInstance] updateStatusBarLegibility];
     [[%c(SBUIController) sharedInstance] wallpaperDidChangeForVariant:1];
 }
-
 
 @end
