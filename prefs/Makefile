@@ -1,7 +1,7 @@
 include $(THEOS)/makefiles/common.mk
 #rename bundle
 BUNDLE_NAME = RiftBoard
-RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m RiftBoardSupportListController.m
+RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m RiftBoardSupportListController.m RBTranslationsListController.m
 
 #$(wildcard MotionBlur/*.m)
 RiftBoard_INSTALL_PATH = /Library/PreferenceBundles

@@ -1,119 +1,112 @@
 #import "SBTest.h"
 
-
 @implementation SBTest
 
-
-+(id)sharedInstance {
++(id)sharedInstance
+{
     static dispatch_once_t p = 0;
     __strong static id _sharedObject = nil;
-    
     dispatch_once(&p, ^{
         _sharedObject = [[self alloc] init];
     });
-    
     return _sharedObject;
 }
 
-- (id)init {
-    
-    if (self = [super init]) {
-        
+- (id)init
+{
+    if (self = [super init])
+    {        
         //get main springboard window
-        _window = MSHookIvar<SBWindow*>([%c(SBUIController) sharedInstance],"_window");
-        
+        self.SBWindow = MSHookIvar<SBWindow*>([%c(SBUIController) sharedInstance],"_window");
         //set contentView
-        _contentView = [[%c(SBUIController) sharedInstance] contentView];
-        
-        _beforeWindowLevel = _window.windowLevel;
-        
+        self.SBContentView = [[%c(SBUIController) sharedInstance] contentView];
+        self.origWindowLevel = self.SBWindow.windowLevel;
     }
-    
     return self;
 }
 
--(void)show {
-    //load everything here
-    
+//load everything here
+-(void)show
+{
     //cant open twice or open while app switcher is showing
-    if(_isActive || [[%c(SBUIController) sharedInstance] isAppSwitcherShowing]) {
+    if(self.isActive || [[%c(SBUIController) sharedInstance] isAppSwitcherShowing])
         return;
-    }
         
     debug(@"Start Loading...");
-
     debug(@"handle initial rotation");
     //so springboard is in the correct orientation when loaded.
     if ([[RBPrefs sharedInstance] allowRotation] && [(SpringBoard *)[%c(SpringBoard) sharedApplication] homeScreenSupportsRotation])
     {
         [[SBTest sharedInstance] handleRotationWithDuration:0.0];
     }
-    
 
     //light blur
-    if([[RBPrefs sharedInstance] blurStyle] == 1) {
-        _blurView = [[CKBlurView alloc] initWithFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
-        
-        [_blurView setAlpha:0.0f];
-        [_blurView setHidden:NO];
-        
+    if([[RBPrefs sharedInstance] blurStyle] == 1)
+    {
+        self.blurView = [[CKBlurView alloc] initWithFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
+        [self.blurView setAlpha:0.0f];
+        [self.blurView setHidden:NO];
         //set blur view behind contentView
-        [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
-        
+        [self.SBContentView.superview insertSubview:self.blurView belowSubview:self.SBContentView];
+
         //dark blur
-    } else if([[RBPrefs sharedInstance] blurStyle] == 2) {
+    } else if([[RBPrefs sharedInstance] blurStyle] == 2)
+    {
         //NC BLUR VIEW
         _UIBackdropViewSettings *settings = [%c(_UIBackdropViewSettingsNone) settingsForPrivateStyle:1];
-        _blurView = [[_UIBackdropView alloc] initWithFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds] autosizesToFitSuperview:YES settings:settings];
+        self.blurView = [[_UIBackdropView alloc] initWithFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds] autosizesToFitSuperview:YES settings:settings];
         
-        [_blurView setAlpha:0.0f];
-        [_blurView setHidden:NO];
+        [self.blurView setAlpha:0.0f];
+        [self.blurView setHidden:NO];
         
-        [_contentView.superview insertSubview:_blurView belowSubview:_contentView];
+        [self.SBContentView.superview insertSubview:self.blurView belowSubview:self.SBContentView];
     }
     
-    if(!_blurView && ![[RBPrefs sharedInstance] allowAppInteraction]){
+    if(!self.blurView && ![[RBPrefs sharedInstance] allowAppInteraction])
+    {
         //create transparent view. explain more how this works.
         CGRect screenBound = [[UIScreen mainScreen] bounds];
         CGSize screenSize = screenBound.size;
         UIGraphicsBeginImageContextWithOptions(screenSize, NO, 0.0);
-        UIImage *blank = UIGraphicsGetImageFromCurrentImageContext(); //leak? cuz no destroy ref
+        UIImage *clearImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
-        [[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor colorWithPatternImage:blank];
+        [[%c(SBUIController) sharedInstance] contentView].backgroundColor = [UIColor colorWithPatternImage:clearImage];
     }
     
     //get springboard status bar
-    UIStatusBar *status = [(SpringBoard *)[%c(SpringBoard) sharedApplication] statusBar];
-    
+    UIStatusBar *SBstatusBar = [(SpringBoard *)[%c(SpringBoard) sharedApplication] statusBar];
     //set level right under the status bar
-    _window.windowLevel = ((UIWindow *)[status statusBarWindow]).windowLevel - 1;
+    self.SBWindow.windowLevel = ((UIWindow *)[SBstatusBar statusBarWindow]).windowLevel - 1;
     
     [UIView animateWithDuration:0.3f animations:^{
-        [_blurView setAlpha:1.0f];
+        [self.blurView setAlpha:1.0f];
         //show status bar
         [[%c(SpringBoard) sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     } completion:^(BOOL completed) {
         debug(@"completed");
     }];
     
-    //reveal icons
+    //show icons
     [[%c(SBUIController) sharedInstance] restoreContentAndUnscatterIconsAnimated:YES];
 }
 
--(void)dismiss {
+-(void)dismiss
+{
     [self dismissWithBundleIdentifier:nil];
 }
 
--(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier {
-
-    if(!_isActive) return;
+-(void)dismissWithBundleIdentifier:(NSString *)bundleIdentifier
+{
+    if(!self.isActive) return;
     
     debug(@"dismissing...");
+
     //animate views out
     [UIView animateWithDuration:0.2f animations:^{
-        [_contentView setAlpha:0.0f];
+        [self.SBContentView setAlpha:0.0f];
+        //doesn't exist in 9.3, but couldn't get it to work smoothly anyways.
         //[[%c(SBIconController) sharedInstance] scatterAnimated:YES withCompletion:nil];
-        [_blurView setAlpha:0.0f];
+        [self.blurView setAlpha:0.0f];
         
         /* hax >:/
          need to hide status bar here so animation is in sync with
@@ -139,71 +132,71 @@
         //remove invisible image for app interaction
         [[%c(SBUIController) sharedInstance] contentView].backgroundColor = nil;
         
-        [_blurView setHidden:YES];
-        
-        _blurView = nil;
+        [self.blurView setHidden:YES];
+        [self.blurView removeFromSuperview];
+        self.blurView = nil;
         
         //put springboard back where we found it
-        _window.windowLevel = _beforeWindowLevel;
+        self.SBWindow.windowLevel = self.origWindowLevel;
         
         //reset legibility
-        [self updateLegibility];
+        //[self updateLegibility];
         
-        if(bundleIdentifier) {
+        if(bundleIdentifier)
             [[UIApplication sharedApplication] launchApplicationWithIdentifier:bundleIdentifier suspended:NO];
-        }
-        
     }];
     
     //make sure spotlight is closed
     [[%c(SBSearchViewController) sharedInstance] dismiss];
-    
     //make sure folders are closed too
     [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
-    
     //and deactivate reachability
     [(SpringBoard *)[%c(SpringBoard) sharedApplication] _deactivateReachability];
-
     [[%c(SBUIController) sharedInstance] tearDownIconListAndBar];
 }
 
--(void)handleRotationWithDuration:(double)duration {
+-(void)handleRotationWithDuration:(double)duration
+{
     //[(SpringBoard *)[%c(SpringBoard) sharedApplication] updateNativeOrientationWithOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] updateMirroredDisplays: YES];
     [[%c(SBUIController) sharedInstance] forceIconInterfaceOrientation:[(SpringBoard *)[%c(SpringBoard) sharedApplication] _frontMostAppOrientation] duration:duration];
     [[%c(SpringBoard) sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-    if(_blurView) {
-        [_blurView setFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
-    }
+    if(self.blurView)
+        [self.blurView setFrame:[[[%c(SBUIController) sharedInstance] contentView] bounds]];
 }
 
--(void)handleRotation {
+-(void)handleRotation
+{
     [self handleRotationWithDuration:0.4];
 }
 
--(BOOL)isAsssignedToHomeButton {
-    for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"]) {
-        if([event.name isEqualToString:@"libactivator.menu.press.single"]) {
-            debug(@"single home button assigned, returning YES.");
+-(BOOL)isAsssignedToHomeButton
+{
+    for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"])
+    {
+        if([event.name isEqualToString:@"libactivator.menu.press.single"])
+        {
+            debug(@"isAsssignedToHomeButton: YES");
             return YES;
         }
     }
     return NO;
 }
 
--(BOOL)isInApplication {
+-(BOOL)isInApplication
+{
     return [[%c(SpringBoard) sharedApplication] _accessibilityFrontMostApplication] != nil;
 }
 
 //check if blur view is visible. make blur view not init everytime and just hide it
--(BOOL)isActive {
-    
-    _isActive = _window.windowLevel != _beforeWindowLevel? YES : NO;
-    
+-(BOOL)isActive
+{
+    _isActive = self.SBWindow.windowLevel != self.origWindowLevel? YES : NO;   
     return _isActive;
-    
 }
 
--(void)updateLegibility {
+//unused
+-(void)updateLegibility
+{
     [[%c(SBUIController) sharedInstance] _updateLegibility];
     [[%c(SBUIController) sharedInstance] updateStatusBarLegibility];
     [[%c(SBUIController) sharedInstance] wallpaperDidChangeForVariant:1];

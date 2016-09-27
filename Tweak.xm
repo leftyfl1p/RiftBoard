@@ -5,7 +5,7 @@
 #import "SBTestActivatorEventDismiss.h"
 #import <libactivator/libactivator.h>
 
-#import <notify.h>
+//#import <notify.h>
 
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
@@ -25,11 +25,16 @@ static NSString *previousBundleIdentifier;
 	%orig;
 }
 
-
 %new
 //notify us when the frontmost application changes in visibility
 - (void)frontmostApplicationChanged:(NSNotification *) notification {
+
+	//if not active return?
 	debug(@"frontmostApplicationChanged: %@", notification.object);
+	if([[SBTest sharedInstance] isActive]) [[SBTest sharedInstance] dismiss];
+	return;
+
+	
 	//if lockscreen is present this will be SBLockScreenViewController
 	id frontmostDisplay = notification.object;
 	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
@@ -66,7 +71,7 @@ static NSString *previousBundleIdentifier;
 }
 
 -(void)_deviceLockStateChanged:(NSNotification *)notification {
-	HBLogInfo(@"SBDeviceLockStateChangedNotification: %@", notification);
+	HBLogInfo(@"SBDeviceLockStateChangedNotification: %@", notification); //remove
 	if ([notification isKindOfClass:[NSNotification class]])
 	{
 		if([[notification.userInfo objectForKey:@"kSBNotificationKeyState"] intValue] == 1)
@@ -75,8 +80,6 @@ static NSString *previousBundleIdentifier;
 			[[SBTest sharedInstance] dismiss];
 		}
 	}
-	
-
 }
 
 //this entire thing could probably use some refactoring
@@ -199,7 +202,6 @@ static NSString *previousBundleIdentifier;
 
 %end
 
-
 %hook SBIconController
 
 //handle opening apps
@@ -261,31 +263,7 @@ handles:
 
 %end
 
-/*
-%hook SBSearchViewController
-
-
--(void)searchGesture:(id)arg1 completedShowing:(BOOL)arg2  {
-	%orig;
-	if(!arg2) {
-		HBLogInfo(@"dismissed spotlight?");
-	}
-}
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	%log;
-	//HBLogInfo(@"indexPath: %ld", (long)indexPath.row);
-	%orig;
-
-}
-
-%end
-*/
-
-
-
 %group iOS9
-
 
 %hook SBDeckSwitcherViewController
 //for when user tries to invoke switcher while board is active
@@ -298,20 +276,17 @@ handles:
 	%orig;
 }
 
-
 %end
 
 %hook SPUISearchResultsActionManager
 
-//ios9 only. for when spotlight needs to open an app.
+//when spotlight needs to open an app.
 -(id)_performAction:(id)arg1 completionBlock:(/*^block*/id)arg2 {
-	//%log;
 	if([[SBTest sharedInstance] isActive]) {
 		[[SBTest sharedInstance] dismiss];
 	}
 	return %orig;
 }
-
 
 %end
 
@@ -326,12 +301,11 @@ handles:
 
 %end
 
-//ios9 group
-%end
+
+%end //ios9 group
 
 
 %group iOS8
-
 
 %hook SBUIController
 //for when user tries to invoke switcher while board is active
@@ -340,11 +314,8 @@ handles:
 		debug(@"SBUIController _activateAppSwitcher???");
 		[[SBTest sharedInstance] dismiss];
 	}
-
 	return %orig;
 }
-
-
 
 %end
 
@@ -362,25 +333,12 @@ handles:
 
 %end
 
-//ios8 group
-%end
+%end //iOS8 group
 
 
 %ctor {
-	//initialize version specific hooks
-
-	//dlopen("/usr/lib/libactivator.dylib", RTLD_LAZY);
 	[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
 	[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
-
-
 	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
-	//init ungrouped hooks
 	%init;
-
-
-
-	//[[RBPrefs sharedInstance] reloadPrefs];
-
-
 }

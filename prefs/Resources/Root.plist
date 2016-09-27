@@ -17,8 +17,6 @@
 			<string>PSLinkCell</string>
 			<key>label</key>
 			<string>Show Action</string>
-<!-- 			<key>icon</key>
-			<string>icons/Show</string> -->
 			<key>isController</key>
 			<true/>
 			<key>bundle</key>
@@ -32,8 +30,6 @@
 			<string>PSLinkCell</string>
 			<key>label</key>
 			<string>Dismiss Action</string>
-<!-- 			<key>icon</key>
-			<string>icons/Dismiss</string> -->
 			<key>isController</key>
 			<true/>
 			<key>bundle</key>
@@ -86,8 +82,6 @@
 			<false/>
 			<key>defaults</key>
 			<string>com.leftyfl1p.springround</string>
-<!-- 			<key>icon</key>
-			<string>icons/AllowAppInteraction</string> -->
 			<key>key</key>
 			<string>allowAppInteraction</string>
 			<key>id</key>
@@ -158,27 +152,20 @@
 		    <string>HBLinkTableCell</string>
 		    <key>label</key>
 		    <string>Donate via PayPal</string>
-<!-- 		    <key>icon</key>
-			<string>icons/PayPal</string> -->
 		    <key>url</key>
 		    <string>http://example.com/</string>
 		</dict>
 
 		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-            <string>fluent translators wanted! email me! free copy reward!</string>
-		</dict>
-
-		<dict>
-		    <key>cell</key>
-		    <string>PSButtonCell</string>
-		    <key>label</key>
-		    <string>Translation Credits</string>
-<!-- 		    <key>icon</key>
-			<string>icons/Translate</string> -->
-		</dict>		
+            <key>cell</key>
+            <string>PSLinkCell</string>
+            <key>isController</key>
+            <string>1</string>
+            <key>label</key>
+            <string>Translation Credits</string>
+            <key>detail</key>
+            <string>RBTranslationsListController</string>
+        </dict>		
 
 		<dict>
 			<key>cell</key>
@@ -194,8 +181,6 @@
             <string>Support</string>
             <key>detail</key>
             <string>RiftBoardSupportListController</string>
-<!--             <key>icon</key>
-			<string>icons/Support</string> -->
         </dict>
 
 	</array>

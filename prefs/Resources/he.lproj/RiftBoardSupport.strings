@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Debug Logging</key>
+	<string>רישום איתור באגים</string>
+	<key>Debugging</key>
+	<string>איתור באגים</string>
+	<key>Email Support</key>
+	<string>תמיכה בדוא״ל</string>
+	<key>Enable when emailing through CrashReporter</key>
+	<string>אפשר/י כאשר הינך שולח/ת בדוא״ל דרך CrashReporter</string>
+	<key>Experiencing issues?</key>
+	<string>חווה בעיות?</string>
+</dict>
+</plist>

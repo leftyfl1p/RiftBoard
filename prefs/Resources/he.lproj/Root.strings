@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Activation Options</key>
+	<string>אפשרויות הפעלה</string>
+	<key>Allow App Interaction</key>
+	<string>אפשר אינטרקציה עם האפליקציה</string>
+	<key>Allow Rotation</key>
+	<string>אפשר סיבוב</string>
+	<key>Credits</key>
+	<string>קרדיטים</string>
+	<key>Dark Blur</key>
+	<string>טשטוש אפל</string>
+	<key>Dismiss Action</key>
+	<string>פעולת שחרור</string>
+	<key>Donate via PayPal</key>
+	<string>תרומה דרך PayPal</string>
+	<key>Experimental</key>
+	<string>ניסיוני</string>
+	<key>Light Blur</key>
+	<string>טשטוש בהיר</string>
+	<key>No Blur</key>
+	<string>שום טשטוש</string>
+	<key>Quick Dismiss</key>
+	<string>שחרור מהיר</string>
+	<key>Show Action</key>
+	<string>הראה פעולה</string>
+	<key>Support</key>
+	<string>תמיכה</string>
+	<key>Translation Credits</key>
+	<string>קרדיטים לתרגומים</string>
+	<key>Visual and Functional Options</key>
+	<string>אפשרויות מראה ופונקציות</string>
+</dict>
+</plist>

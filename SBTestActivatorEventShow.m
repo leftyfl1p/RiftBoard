@@ -24,7 +24,7 @@
 }
 
 - (void)activator:(LAActivator *)activator receiveEvent:(LAEvent *)event {
-
+  HBLogError(@"%@", event.mode);
   if(![event.name isEqualToString:@"libactivator.menu.press.single"]) {
     //HBLogDebug(@"activator: single press not received");
     if([[SBTest sharedInstance] isActive]) {

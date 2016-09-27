@@ -1,47 +1,37 @@
 #include "RBRootListController.h"
-#include <substrate.h>
 
 @implementation RBRootListController
 
 - (id)init {
-    
     if (self = [super init]) {
         HBAppearanceSettings *appearanceSettings = [[HBAppearanceSettings alloc] init];
         appearanceSettings.tintColor = [UIColor colorWithRed:0 green:0.478 blue:1 alpha:1];
         self.hb_appearanceSettings = appearanceSettings;
     }
-
     return self;
 }
 
 
 - (NSArray *)specifiers {
-	if (!_specifiers) {
-		_specifiers = [[self loadSpecifiersFromPlistName:@"Root" target:self] retain];
-	}
+	return [super specifiers];
+}
 
-	return _specifiers;
++(NSString *)hb_specifierPlist {
+	return @"Root";
 }
 
 + (NSString *)hb_shareText {
-	return [NSString stringWithFormat:@"I’m using the #RiftBoard beta on my %@ to use my homescreen icons in any app!", [UIDevice currentDevice].localizedModel];
+	return @"I’m using #RiftBoard to use my homescreen icons in any app!";
 }
 
 + (NSURL *)hb_shareURL {
 	return [NSURL URLWithString:@"https://cydia.saurik.com/package/com.leftyfl1p.springround"];
 }
 
-/*+ (UIColor *)hb_tintColor {
-	return [UIColor colorWithRed:0 green:0.478 blue:1 alpha:1];
-}*/
-
 -(void)updateInteractionSwitch {
 	BOOL interactionValue = [[[self interactionSpecifier] propertyForKey:@"value"] boolValue];
-
 	PSSpecifier *blurSpecifier = [_specifiersByID objectForKey:@"blur"];
 	int blurValue = [[blurSpecifier propertyForKey:@"value"] intValue];
-
-	//HBLogInfo(@"asdfasdfsad: %d", self.interactionSwitch.enabled);
 	if (blurValue != 0) {
 		[self.interactionSwitch setEnabled:NO];
 		[self.interactionSwitch setOn:NO animated:YES];
@@ -53,9 +43,7 @@
 
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
 	[super setPreferenceValue:value specifier:specifier];
-
 	if ([[specifier propertyForKey:@"id"] isEqualToString:@"blur"]) {
-
 		if (self.interactionSwitch.enabled)
 		{
 			[self flash];
@@ -65,34 +53,47 @@
 
 }
 
-- (void)viewDidAppear:(BOOL)arg1 {
-	[super viewDidAppear:arg1];
+-(void)viewDidLoad {
+	[super viewDidLoad];
 
-	[self updateInteractionSwitch];
-
+	//solves issue when app re-enters foreground and viewDidAppear isn't called.
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
--(PSSpecifier *)interactionSpecifier {
+
+- (void)appWillEnterForeground:(NSNotification *)notification
+{
+    [self updateInteractionSwitch];
+}
+
+- (void)viewDidAppear:(BOOL)arg1
+{
+	[super viewDidAppear:arg1];
+	[self updateInteractionSwitch];
+}
+
+-(PSSpecifier *)interactionSpecifier
+{
 	return [_specifiersByID objectForKey:@"allowAppInteraction"];
 }
 
--(UISwitch *)interactionSwitch {
+-(UISwitch *)interactionSwitch
+{
 	return [[self interactionSpecifier] propertyForKey:@"control"];
 }
 
-
--(void)flash {
+//rename
+-(void)flash
+{
 	UITableViewCell * interactionCell = [[self interactionSpecifier] propertyForKey:@"cellObject"];
-	//UIView *background = [[UIView alloc] initWithFrame:interactionCell.frame];
 	UIColor *backgroundColor = interactionCell.backgroundColor;
-
 	[UIView animateWithDuration:0.05 animations:^{
 		interactionCell.backgroundColor = [UIColor redColor];
     } completion:^(BOOL finished) {
     	[UIView animateWithDuration:1.05 animations:^{
 			interactionCell.backgroundColor = backgroundColor;
     	} completion:^(BOOL finished) {
-    	
+    		//nil
     	}];
 
     }];
