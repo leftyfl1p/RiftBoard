@@ -21,7 +21,6 @@ static NSString *previousBundleIdentifier;
 		debug(@"tearDownIconListAndBar: board is active, returning.");
 		return;
 	}
-
 	%orig;
 }
 

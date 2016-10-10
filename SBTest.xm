@@ -171,7 +171,7 @@
 
 -(BOOL)isAsssignedToHomeButton
 {
-    for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.sbtest/show"])
+    for(LAEvent *event in [[LAActivator sharedInstance] eventsAssignedToListenerWithName:@"com.leftyfl1p.springround/show"])
     {
         if([event.name isEqualToString:@"libactivator.menu.press.single"])
         {
@@ -200,6 +200,43 @@
     [[%c(SBUIController) sharedInstance] _updateLegibility];
     [[%c(SBUIController) sharedInstance] updateStatusBarLegibility];
     [[%c(SBUIController) sharedInstance] wallpaperDidChangeForVariant:1];
+}
+
+-(void)showHomeButtonActivatorAlert
+{
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"RiftBoard" message:nil preferredStyle:UIAlertControllerStyleAlert];
+
+    if([[LAActivator sharedInstance] hasEventWithName:@"HomeButtonFixf"])
+    {
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Open Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+        {
+            [alert dismissViewControllerAnimated:YES completion:nil];
+            NSURL *url = [NSURL URLWithString:@"prefs:root=RiftBoard"];
+            [[UIApplication sharedApplication] openURL:url];
+        }];
+        [alert setMessage:@"Please assign this listener to the Single Press event under Home Button Fix in Activator."];
+        [alert addAction:ok];
+
+    }
+    else
+    {
+        UIAlertAction *ok = [UIAlertAction actionWithTitle:@"Open In Cydia" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+        {
+            [alert dismissViewControllerAnimated:YES completion:nil];
+            NSURL *url = [NSURL URLWithString:@"cydia://url/https://cydia.saurik.com/api/share#?source=https://leftyfl1p.github.io/&package=com.leftyfl1p.activatorfix"];
+            [[UIApplication sharedApplication] openURL:url];
+        }];
+        [alert setMessage:@"Activator's Single (home button) Press is broken in 9.3. Please install an alternative event in Cydia to use the Single Press event."];
+        [alert addAction:ok];
+    }
+
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Dismiss" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+    {
+        [alert dismissViewControllerAnimated:YES completion:nil];
+    }];
+
+    [alert addAction:cancel];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
 @end

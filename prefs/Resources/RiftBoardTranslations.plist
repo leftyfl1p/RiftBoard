@@ -16,6 +16,15 @@
 		    <key>cell</key>
 		    <string>PSTitleValueCell</string>
 		    <key>label</key>
+		    <string>Deutsch</string>
+		    <key>get</key>
+		    <string>valueForSpecifier:</string>
+		</dict>
+
+		<dict>
+		    <key>cell</key>
+		    <string>PSTitleValueCell</string>
+		    <key>label</key>
 		    <string>한국어</string>
 		    <key>get</key>
 		    <string>valueForSpecifier:</string>
@@ -70,7 +79,7 @@
 		    <key>cell</key>
 		    <string>PSTitleValueCell</string>
 		    <key>label</key>
-		    <string>Malay</string>
+		    <string>Melayu</string>
 		    <key>get</key>
 		    <string>valueForSpecifier:</string>
 		</dict>
@@ -80,6 +89,15 @@
 		    <string>PSTitleValueCell</string>
 		    <key>label</key>
 		    <string>Malti</string>
+		    <key>get</key>
+		    <string>valueForSpecifier:</string>
+		</dict>
+
+		<dict>
+		    <key>cell</key>
+		    <string>PSTitleValueCell</string>
+		    <key>label</key>
+		    <string>עברית</string>
 		    <key>get</key>
 		    <string>valueForSpecifier:</string>
 		</dict>

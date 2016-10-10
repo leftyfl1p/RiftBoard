@@ -1,4 +1,5 @@
 #define debug(text, ...) if([[RBPrefs sharedInstance] debug]) HBLogDebug((text), ##__VA_ARGS__)
+#define isiOS93Up (kCFCoreFoundationVersionNumber >= 1280.30)
 
 @interface SBWindow : UIWindow
 @end

@@ -29,4 +29,6 @@
 -(BOOL)isActive;
 
 -(void)updateLegibility;
+
+-(void)showHomeButtonActivatorAlert;
 @end
