@@ -1,6 +1,7 @@
 ARCHS = armv7 armv7s arm64
 include $(THEOS)/makefiles/common.mk
 
+#THEOS_DEVICE_IP = 10.0.1.186
 #THEOS_DEVICE_IP = 10.0.1.4
 
 TWEAK_NAME = sbtest

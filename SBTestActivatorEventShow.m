@@ -27,6 +27,11 @@
     return NO;   
 }
 
+- (UIImage *)activator:(LAActivator *)activator requiresSmallIconForListenerName:(NSString *)listenerName scale:(CGFloat)scale
+{
+    return [UIImage imageWithContentsOfFile:@"/Library/Application Support/RiftBoard/icon-small.png"];
+}
+
 - (void)activator:(LAActivator *)activator receiveEvent:(LAEvent *)event
 {
     if(![event.name isEqualToString:@"libactivator.menu.press.single"])

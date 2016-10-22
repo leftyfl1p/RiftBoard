@@ -116,11 +116,16 @@ static NSString *previousBundleIdentifier;
 			-must be on first page
 			*/
 			if([[RBPrefs sharedInstance] debug]) {
+				//I have absolutely no idea why clang thinks these are unused.
+				#pragma clang diagnostic ignored "-Wunused-variable"
 				int currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex;
+				#pragma clang diagnostic ignored "-Wunused-variable"
 				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
+				#pragma clang diagnostic ignored "-Wunused-variable"
 				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
+				#pragma clang diagnostic ignored "-Wunused-variable"
 				BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
-				HBLogDebug(@"\n conditions:\n currentPageIndex = %i\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder,iconsAreEditing,searchIsVisible);
+				HBLogDebug(@"\n conditions:\n currentPageIndex = %i\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder, iconsAreEditing, searchIsVisible);
 			}
 
 			if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
@@ -266,7 +271,7 @@ handles:
 
 %hook SBDeckSwitcherViewController
 //for when user tries to invoke switcher while board is active
--(void)viewDidLoad {//FIXME: use view did appear
+-(void)viewDidLoad {//FIXME: use view did appear ???
 	if([[SBTest sharedInstance] isActive]) {
 		debug(@"SBDeckSwitcherViewController viewDidLoad???");
 		[[SBTest sharedInstance] dismiss];
@@ -281,7 +286,7 @@ handles:
 
 //when spotlight needs to open an app.
 -(id)_performAction:(id)arg1 completionBlock:(/*^block*/id)arg2 {
-	if([[SBTest sharedInstance] isActive]) {
+	if([[SBTest sharedInstance] isActive] && ![arg1 isKindOfClass:NSClassFromString(@"SPUISearchResultsiTunesAction")]) {
 		[[SBTest sharedInstance] dismiss];
 	}
 	return %orig;
@@ -335,7 +340,8 @@ handles:
 %end //iOS8 group
 
 
-%ctor {
+%ctor
+{
 	[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
 	[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
 	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));

@@ -102,6 +102,15 @@
 		    <string>valueForSpecifier:</string>
 		</dict>
 
+		<dict>
+		    <key>cell</key>
+		    <string>PSTitleValueCell</string>
+		    <key>label</key>
+		    <string>Русский</string>
+		    <key>get</key>
+		    <string>valueForSpecifier:</string>
+		</dict>
+
 	</array>
 	<key>title</key>
 	<string>Translation Credits</string>

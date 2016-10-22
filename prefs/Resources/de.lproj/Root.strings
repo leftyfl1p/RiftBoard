@@ -1,15 +1,36 @@
-"Activation Options" = "Activierungs Optionen";
-"Allow App Interaction" = "App Interaktion Erlauben";
-"Allow Rotation" = "Rotation Erlauben";
-"Credits" = "Danke";
-"Dark Blur" = "Dunkler Weichzeichner";
-"Dismiss Action" = "Aktion abtun";
-"Donate via PayPal" = "Mit PayPal Spenden";
-"Experimental" = "Experimental";
-"Light Blur" = "Heller Weichzeichner";
-"No Blur" = "Kein Weichzeichner";
-"Quick Dismiss" = "Schnelles verstecken";
-"Show Action" = "Aktion anzeigen";
-"Support" = "Hilfe";
-"Translation Credits" = "Danke für Übersetzung";
-"Visual and Functional Options" = "Visuelle and Funktionelle Optionen";
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Activation Options</key>
+	<string>Activierungs Optionen</string>
+	<key>Allow App Interaction</key>
+	<string>App Interaktion Erlauben</string>
+	<key>Allow Rotation</key>
+	<string>Rotation Erlauben</string>
+	<key>Credits</key>
+	<string>Danke</string>
+	<key>Dark Blur</key>
+	<string>Dunkler Weichzeichner</string>
+	<key>Dismiss Action</key>
+	<string>Aktion abtun</string>
+	<key>Donate via PayPal.me</key>
+	<string>Mit PayPal.me Spenden</string>
+	<key>Experimental</key>
+	<string>Experimental</string>
+	<key>Light Blur</key>
+	<string>Heller Weichzeichner</string>
+	<key>No Blur</key>
+	<string>Kein Weichzeichner</string>
+	<key>Quick Dismiss</key>
+	<string>Schnelles verstecken</string>
+	<key>Show Action</key>
+	<string>Aktion anzeigen</string>
+	<key>Support</key>
+	<string>Hilfe</string>
+	<key>Translation Credits</key>
+	<string>Danke f√ºr √úbersetzung</string>
+	<key>Visual and Functional Options</key>
+	<string>Visuelle and Funktionelle Optionen</string>
+</dict>
+</plist>

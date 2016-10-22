@@ -22,6 +22,11 @@
   return NO;
 }
 
+- (UIImage *)activator:(LAActivator *)activator requiresSmallIconForListenerName:(NSString *)listenerName scale:(CGFloat)scale
+{
+    return [UIImage imageWithContentsOfFile:@"/Library/Application Support/RiftBoard/icon-small.png"];
+}
+
 - (void)activator:(LAActivator *)activator receiveEvent:(LAEvent *)event {
   [[SBTest sharedInstance] dismiss];
   [event setHandled:YES];

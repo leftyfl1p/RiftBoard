@@ -1,5 +1,16 @@
-"Debug Logging" = "Debug Logging";
-"Debugging" = "Debugging";
-"Email Support" = "Email Unterstützung";
-"Enable when emailing through CrashReporter" = "Aktivieren wenn sie durch CrashReporter emailen";
-"Experiencing issues?" = "Gibt es Fehler?";
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Debug Logging</key>
+	<string>Debug Logging</string>
+	<key>Debugging</key>
+	<string>Debugging</string>
+	<key>Email Support</key>
+	<string>Email Unterst√ºtzung</string>
+	<key>Enable when emailing through CrashReporter</key>
+	<string>Aktivieren wenn sie durch CrashReporter emailen</string>
+	<key>Experiencing issues?</key>
+	<string>Gibt es Fehler?</string>
+</dict>
+</plist>

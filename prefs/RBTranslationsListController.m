@@ -22,6 +22,7 @@
 		@"العربية" : @"/u/aofathy",			//Arabian? idk
 		@"עברית" : @"ארן שביט",				//Hebrew
 		@"Deutsch" : @"Louis",				//German
+		@"Русский" : @"/u/25element",		//Russian
 	};
 	return dict[specifier.name];
 }

@@ -1,15 +1,17 @@
-"Activation Options" = "Opció d’activació";
-"Show Action" = "Mostrar acció";
-"Dismiss Action" = "Amagar acció";
-"Visual and Functional Options" = "Opcions visuals i funcionals";
-"No Blur" = "Sense difulminat";
-"Light Blur" = "Difulminat clar";
-"Dark Blur" = "Difulminat fosc";
-"Allow App Interaction" = "Permetre interacció amb l’app";
-"Quick Dismiss" = "Amagar ràpidament";
-"Experimental" = "Experimental";
-"Allow Rotation" = "Permetre la rotació";
-"Credits" = "Crèdits";
-"Donate via PayPal" = "Donar a través de PayPal";
-"Translation Credits" = "Crèdits de traducció";
-"Support" = "Suport";
+{
+  "Translation Credits" : "Crèdits de traducció",
+  "Credits" : "Crèdits",
+  "Experimental" : "Experimental",
+  "No Blur" : "Sense difulminat",
+  "Donate via PayPal.me" : "Donar a través de PayPal.me",
+  "Show Action" : "Mostrar acció",
+  "Support" : "Suport",
+  "Light Blur" : "Difulminat clar",
+  "Quick Dismiss" : "Amagar ràpidament",
+  "Activation Options" : "Opció d’activació",
+  "Allow Rotation" : "Permetre la rotació",
+  "Visual and Functional Options" : "Opcions visuals i funcionals",
+  "Allow App Interaction" : "Permetre interacció amb l’app",
+  "Dismiss Action" : "Amagar acció",
+  "Dark Blur" : "Difulminat fosc"
+}

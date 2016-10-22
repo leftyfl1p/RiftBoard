@@ -151,9 +151,9 @@
 		    <key>cellClass</key>
 		    <string>HBLinkTableCell</string>
 		    <key>label</key>
-		    <string>Donate via PayPal</string>
+		    <string>Donate via PayPal.me</string>
 		    <key>url</key>
-		    <string>http://example.com/</string>
+		    <string>https://paypal.me/leftyfl1p/</string>
 		</dict>
 
 		<dict>

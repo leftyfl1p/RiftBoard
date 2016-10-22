@@ -14,8 +14,8 @@
 	<string>טשטוש אפל</string>
 	<key>Dismiss Action</key>
 	<string>פעולת שחרור</string>
-	<key>Donate via PayPal</key>
-	<string>תרומה דרך PayPal</string>
+	<key>Donate via PayPal.me</key>
+	<string>תרומה דרך PayPal.me</string>
 	<key>Experimental</key>
 	<string>ניסיוני</string>
 	<key>Light Blur</key>

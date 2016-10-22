@@ -3,7 +3,6 @@ include $(THEOS)/makefiles/common.mk
 BUNDLE_NAME = RiftBoard
 RiftBoard_FILES = RBRootListController.m RiftBoardBlurListController.m RBPreviewCell.m RiftBoardSupportListController.m RBTranslationsListController.m
 
-#$(wildcard MotionBlur/*.m)
 RiftBoard_INSTALL_PATH = /Library/PreferenceBundles
 RiftBoard_FRAMEWORKS = UIKit QuartzCore Accelerate
 RiftBoard_PRIVATE_FRAMEWORKS = Preferences AppSupport

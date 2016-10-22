@@ -1,7 +1,7 @@
 Package: com.leftyfl1p.springround
 Name: RiftBoard
 Depends: mobilesubstrate, libactivator, ws.hbang.common
-Version: 0.0.1
+Version: 1.0
 Architecture: iphoneos-arm
 Description: Homescreen icons in any app!
 Maintainer: leftyfl1p <leftyfl1p@icloud.com>
