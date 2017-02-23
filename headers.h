@@ -184,6 +184,8 @@
 
 @end
 
+
+
 @interface SBIcon : NSObject
 // -(id)applicationBundleID;
 @end
@@ -288,17 +290,37 @@
 @property(readonly, assign, nonatomic) int currentPageIndex;
 @end
 
-@interface SBRootFolderView : SBFolderView
+@interface SBHomeScreenPullDownSearchViewController : NSObject //(iOS10)
+-(void)dismissSearchViewWithReason:(unsigned long long)arg1;
+@end
+
+@interface SBRootFolderView : SBFolderView {
+	SBHomeScreenPullDownSearchViewController* _pullDownSearchViewController; //iOS10
+}
 
 @end
 
-@interface SBRootFolderController : NSObject
+
+@interface SBRootFolderController : NSObject {
+	SBRootFolderController* _rootFolderController; //iOS10
+}
 
 //@property (nonatomic,retain) SBRootFolder * folder; 
 @property (nonatomic,retain,readonly) SBRootFolderView * contentView; 
 
 @end
 
+@interface SBDockIconListView : UIView
+-(void)collapseAnimated:(BOOL)arg1;
+@end
+
+@interface SBIconController (iOS10) 
+
+-(void)closeFolderAnimated:(BOOL)arg1 withCompletion:(/*^block*/id)arg2 ;
+-(void)openFolderIcon:(id)arg1 animated:(BOOL)arg2 withCompletion:(/*^block*/id)arg3 ;
+
+- (id)dockListView;
+@end
 
 // @interface SBSearchViewController : UIViewController
 // // +(id)sharedInstance;

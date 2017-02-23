@@ -9,77 +9,165 @@
 
 #define kBundlePath @"/Library/MobileSubstrate/DynamicLibraries/sbtestBundle.bundle"
 #define isiOS9Up (kCFCoreFoundationVersionNumber >= 1217.11)
+#define isiOS10Up (kCFCoreFoundationVersionNumber >= 1333.2)
+#define isiOS9 (kCFCoreFoundationVersionNumber >= 1217.11 && kCFCoreFoundationVersionNumber < 1333.2)
+#define isiOS8 (kCFCoreFoundationVersionNumber >= 1129.15 && kCFCoreFoundationVersionNumber < 1217.11)
+#define isiOS89 (kCFCoreFoundationVersionNumber >= 1129.15 && kCFCoreFoundationVersionNumber < 1333.2)
 
 static NSString *previousBundleIdentifier;
 
+%group iOS10
+
 %hook SBUIController
 
-//rotation
-- (void)tearDownIconListAndBar {
-	if([[SBTest sharedInstance] isActive] /*&& ![(SpringBoard *)[%c(SpringBoard) sharedApplication] isLocked]*/)
-	{
-		debug(@"tearDownIconListAndBar: board is active, returning.");
-		return;
+//this entire thing could probably use some refactoring
+-(BOOL)handleHomeButtonSinglePressUp {
+	//if activator single home button press event is assigned & board isnt already active & app switcher isnt showing & device is currently in an app
+	if([[SBTest sharedInstance] isAsssignedToHomeButton] && ![[SBTest sharedInstance] isActive] && ![[%c(SBUIController) sharedInstance] isAppSwitcherShowing] && [[SBTest sharedInstance] isInApplication]) {
+		debug(@"asssignedToHomeButton and appropriate to show. showing.");
+		[[SBTest sharedInstance] show];
+
+	} else if([[SBTest sharedInstance] isActive]) {
+
+		if([[RBPrefs sharedInstance] useQuickHomeButtonDismiss]) {
+
+			debug(@"useQuickHomeButtonDismiss is on, dismissing");
+
+			if([[%c(SBIconController) sharedInstance] isEditing]) {
+				debug(@"but was editing.");
+				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
+			} else {
+				[[SBTest sharedInstance] dismiss];
+			}
+			
+		} else {
+			debug(@"useQuickHomeButtonDismiss is off");
+			//handle siri being invoked while open
+			if([%c(SBAssistantController) isAssistantVisible]) {
+				return %orig;
+			}
+
+			/*
+			conditions to close:
+			-not showing search
+			-not editing icons
+			-no open folders
+			-must be on first page
+			*/
+			if([[RBPrefs sharedInstance] debug]) {
+				//I have absolutely no idea why clang thinks these are unused.
+				#pragma clang diagnostic ignored "-Wunused-variable"
+				int currentPageIndex = [(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex;
+				#pragma clang diagnostic ignored "-Wunused-variable"
+				BOOL hasOpenFolder = [[%c(SBIconController) sharedInstance] hasOpenFolder];
+				#pragma clang diagnostic ignored "-Wunused-variable"
+				BOOL iconsAreEditing = [[%c(SBIconController) sharedInstance] isEditing];
+				#pragma clang diagnostic ignored "-Wunused-variable"
+				BOOL searchIsVisible = [[%c(SBSearchViewController) sharedInstance] isVisible];
+				HBLogDebug(@"\n conditions:\n currentPageIndex = %i\n hasOpenFolder = %d\n iconsAreEditing = %d\n searchIsVisible = %d\n", currentPageIndex, hasOpenFolder, iconsAreEditing, searchIsVisible);
+			}
+
+			if([(SBRootFolderController *)[[%c(SBIconController) sharedInstance] _rootFolderController] contentView].currentPageIndex == 0 
+				&& ![[%c(SBIconController) sharedInstance] hasOpenFolder] 
+				&& ![[%c(SBIconController) sharedInstance] isEditing] 
+				&& ![[%c(SBSearchViewController) sharedInstance] isVisible]) {
+
+				debug(@"should close here");
+				[[SBTest sharedInstance] dismiss];
+			} else
+
+			//handle spotlight
+			if([[%c(SBSearchViewController) sharedInstance] isVisible]) {
+				[[%c(SBSearchViewController) sharedInstance] dismiss];
+			} else
+
+			//handle disable icon editing
+			if([[%c(SBIconController) sharedInstance] isEditing]) {
+				[[%c(SBIconController) sharedInstance] setIsEditing:NO];
+			} else {
+
+				//tell icons to handle the press
+				debug(@"icons handleHomeButtonTap");
+				[[%c(SBIconController) sharedInstance] handleHomeButtonTap];
+			}
+			
+		}
+
+	} else {
+		
+		return %orig;
 	}
+
+
+	return YES;
+}
+
+
+%end
+
+//THIS IS ALSO in ios 9. make 910 group
+%hook SBDeckSwitcherViewController
+//for when user tries to invoke switcher while board is active
+-(void)viewDidLoad {//FIXME: use view did appear ???
+	if([[SBTest sharedInstance] isActive]) {
+		debug(@"SBDeckSwitcherViewController viewDidLoad???");
+		[[SBTest sharedInstance] dismiss];
+	}
+
 	%orig;
 }
 
-%new
-//notify us when the frontmost application changes in visibility
-- (void)frontmostApplicationChanged:(NSNotification *) notification {
+%end
 
-	//if not active return?
-	debug(@"frontmostApplicationChanged: %@", notification.object);
-	if([[SBTest sharedInstance] isActive]) [[SBTest sharedInstance] dismiss];
-	return;
+%hook SBIconController
 
-	
-	//if lockscreen is present this will be SBLockScreenViewController
-	id frontmostDisplay = notification.object;
-	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
-		NSString *bundleIdentifier = ((SBApplication *)frontmostDisplay).bundleIdentifier;
-		if(previousBundleIdentifier.length == 0) previousBundleIdentifier = bundleIdentifier;
-		
-		if(![bundleIdentifier isEqualToString:previousBundleIdentifier]) {
-			previousBundleIdentifier = bundleIdentifier;
-			
-			if([[SBTest sharedInstance] isActive]) {
-				[[SBTest sharedInstance] dismiss];
-				debug(@"different bundleIdentifier received, dismissing.");
+//handle opening apps
+- (void)_launchIcon:(id)arg1 {
+	//return %orig;
+	if([[SBTest sharedInstance] isActive]) {
+		//icon is a folder
+		if ([arg1 isKindOfClass:[%c(SBFolderIcon) class]]) {
+			[self openFolderIcon:arg1 animated:YES withCompletion:nil];
+		}
+		//icon is a web bookmark
+		else if ([arg1 isKindOfClass:[%c(SBBookmarkIcon) class]]) {
+			/*
+			webapps that arent "fullscreen" still have a
+			launch url that launches them in fullscreen.
+			*/
+			SBBookmarkIcon * icon = (SBBookmarkIcon *)arg1;
+			if(icon.webClip.fullScreen) {
+				[[UIApplication sharedApplication] openURL:icon.launchURL];
+			} else {
+				[[UIApplication sharedApplication] openURL:icon.webClip.pageURL];
 			}
 
-		} else {
-			debug(@"same bundleIdentifier, doing nothing.");
-		}
-	} else {
-		
-		if([[SBTest sharedInstance] isActive]) {
-			[[SBTest sharedInstance] dismiss];
-			debug(@"did not receive SBApplication, dismissing.");
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:nil];
+		} 
+
+		else {
+			//icon should be an app
+			SBApplicationIcon *icon = (SBApplicationIcon *)arg1;
+			NSString *bundleIdentifier = icon.applicationBundleID;
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
 		}
 	}
 
+	%orig;
 }
 
-%new
-- (void)AXSBServerOrientationChange:(NSNotification *) notification {
-	debug(@"AXSBServerOrientationChange: %@", notification);
-	if([[SBTest sharedInstance] isActive] && [[RBPrefs sharedInstance] allowRotation]) {
-		[[SBTest sharedInstance] handleRotation];
-	}
-}
 
--(void)_deviceLockStateChanged:(NSNotification *)notification {
-	HBLogInfo(@"SBDeviceLockStateChangedNotification: %@", notification); //remove
-	if ([notification isKindOfClass:[NSNotification class]])
-	{
-		if([[notification.userInfo objectForKey:@"kSBNotificationKeyState"] intValue] == 1)
-		{
-			debug(@"_deviceLockStateChanged dismissing");
-			[[SBTest sharedInstance] dismiss];
-		}
-	}
-}
+
+%end
+
+
+
+%end //iOS10
+
+%group iOS89
+
+
+%hook SBUIController
 
 //this entire thing could probably use some refactoring
 -(BOOL)clickedMenuButton {
@@ -166,6 +254,127 @@ static NSString *previousBundleIdentifier;
 
 %end
 
+
+%hook SBIconController
+
+//handle opening apps
+- (void)_launchIcon:(id)arg1 {
+	//return %orig;
+	if([[SBTest sharedInstance] isActive]) {
+		//icon is a folder
+		if ([arg1 isKindOfClass:[%c(SBFolderIcon) class]]) {
+			[self openFolder:[arg1 folder] animated:YES];
+		}
+		//icon is a web bookmark
+		else if ([arg1 isKindOfClass:[%c(SBBookmarkIcon) class]]) {
+			/*
+			webapps that arent "fullscreen" still have a
+			launch url that launches them in fullscreen.
+			*/
+			SBBookmarkIcon * icon = (SBBookmarkIcon *)arg1;
+			if(icon.webClip.fullScreen) {
+				[[UIApplication sharedApplication] openURL:icon.launchURL];
+			} else {
+				[[UIApplication sharedApplication] openURL:icon.webClip.pageURL];
+			}
+
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:nil];
+		} 
+
+		else {
+			//icon should be an app
+			SBApplicationIcon *icon = (SBApplicationIcon *)arg1;
+			NSString *bundleIdentifier = icon.applicationBundleID;
+			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
+		}
+	}
+
+	%orig;
+}
+
+
+
+%end
+
+
+%end //iOS89
+
+
+//SHARED
+%group SHARED
+
+%hook SBUIController
+
+//rotation
+- (void)tearDownIconListAndBar {
+	if([[SBTest sharedInstance] isActive] /*&& ![(SpringBoard *)[%c(SpringBoard) sharedApplication] isLocked]*/)
+	{
+		debug(@"tearDownIconListAndBar: board is active, returning.");
+		return;
+	}
+	%orig;
+}
+
+%new
+//notify us when the frontmost application changes in visibility
+- (void)frontmostApplicationChanged:(NSNotification *) notification {
+
+	//if not active return?
+	debug(@"frontmostApplicationChanged: %@", notification.object);
+	if([[SBTest sharedInstance] isActive]) [[SBTest sharedInstance] dismiss];
+	return;
+
+	
+	//if lockscreen is present this will be SBLockScreenViewController
+	id frontmostDisplay = notification.object;
+	if([frontmostDisplay isKindOfClass:[%c(SBApplication) class]]) {
+		NSString *bundleIdentifier = ((SBApplication *)frontmostDisplay).bundleIdentifier;
+		if(previousBundleIdentifier.length == 0) previousBundleIdentifier = bundleIdentifier;
+		
+		if(![bundleIdentifier isEqualToString:previousBundleIdentifier]) {
+			previousBundleIdentifier = bundleIdentifier;
+			
+			if([[SBTest sharedInstance] isActive]) {
+				[[SBTest sharedInstance] dismiss];
+				debug(@"different bundleIdentifier received, dismissing.");
+			}
+
+		} else {
+			debug(@"same bundleIdentifier, doing nothing.");
+		}
+	} else {
+		
+		if([[SBTest sharedInstance] isActive]) {
+			[[SBTest sharedInstance] dismiss];
+			debug(@"did not receive SBApplication, dismissing.");
+		}
+	}
+
+}
+
+%new
+- (void)AXSBServerOrientationChange:(NSNotification *) notification {
+	debug(@"AXSBServerOrientationChange: %@", notification);
+	if([[SBTest sharedInstance] isActive] && [[RBPrefs sharedInstance] allowRotation]) {
+		[[SBTest sharedInstance] handleRotation];
+	}
+}
+
+-(void)_deviceLockStateChanged:(NSNotification *)notification {
+	//HBLogInfo(@"SBDeviceLockStateChangedNotification: %@", notification); //remove
+	if ([notification isKindOfClass:[NSNotification class]])
+	{
+		if([[notification.userInfo objectForKey:@"kSBNotificationKeyState"] intValue] == 1)
+		{
+			debug(@"_deviceLockStateChanged dismissing");
+			[[SBTest sharedInstance] dismiss];
+		}
+	}
+	%orig;
+}
+
+%end
+
 %hook SpringBoard
 
 -(void)applicationDidFinishLaunching:(id)arg1 {
@@ -206,53 +415,6 @@ static NSString *previousBundleIdentifier;
 
 %end
 
-%hook SBIconController
-
-//handle opening apps
-- (void)_launchIcon:(id)arg1 {
-
-	if([[SBTest sharedInstance] isActive]) {
-		//icon is a folder
-		if ([arg1 isKindOfClass:[%c(SBFolderIcon) class]]) {
-			[self openFolder:[arg1 folder] animated:YES];
-		}
-		//icon is a web bookmark
-		else if ([arg1 isKindOfClass:[%c(SBBookmarkIcon) class]]) {
-			/*
-			webapps that arent "fullscreen" still have a
-			launch url that launches them in fullscreen.
-			*/
-			SBBookmarkIcon * icon = (SBBookmarkIcon *)arg1;
-			if(icon.webClip.fullScreen) {
-				[[UIApplication sharedApplication] openURL:icon.launchURL];
-			} else {
-				[[UIApplication sharedApplication] openURL:icon.webClip.pageURL];
-			}
-
-			[[SBTest sharedInstance] dismissWithBundleIdentifier:nil];
-		} 
-
-		else {
-			//icon should be an app
-			SBApplicationIcon *icon = (SBApplicationIcon *)arg1;
-			NSString *bundleIdentifier = icon.applicationBundleID;
-			[[SBTest sharedInstance] dismissWithBundleIdentifier:bundleIdentifier];
-		}
-	}
-
-	%orig;
-}
-
-//make sure reachability works while board is active
-- (_Bool)_shouldRespondToReachability {
-	if([[SBTest sharedInstance] isActive]) return YES;
-
-	return %orig;
-}
-
-
-%end
-
 
 %hook SBIconListView
 /*
@@ -266,6 +428,19 @@ handles:
 }
 
 %end
+
+%hook SBIconController
+
+//make sure reachability works while board is active
+- (_Bool)_shouldRespondToReachability {
+	if([[SBTest sharedInstance] isActive]) return YES;
+
+	return %orig;
+}
+
+%end
+
+%end //SHARED
 
 %group iOS9
 
@@ -344,6 +519,15 @@ handles:
 {
 	[LASharedActivator registerListener:[SBTestActivatorEventShow new] forName:@"com.leftyfl1p.springround/show"];
 	[LASharedActivator registerListener:[SBTestActivatorEventDismiss new] forName:@"com.leftyfl1p.springround/dismiss"];
-	isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
-	%init;
+	//isiOS9Up ? (%init(iOS9)) : (%init(iOS8));
+
+	if(isiOS8) %init(iOS8);
+	if(isiOS9) %init(iOS9);
+	if(isiOS89) %init(iOS89);
+	if(isiOS10Up) %init(iOS10);
+
+
+	%init(SHARED);
+
+	
 }

@@ -50,7 +50,6 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
     [preferences registerDefaults:@{
         @"blurStyle": @1,
         @"allowAppInteraction": @NO,
-        @"useHomeButton": @NO,
         @"useQuickHomeButtonDismiss": @YES,
         @"allowRotation": @NO,
         @"debug": @NO
@@ -58,14 +57,12 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 
     [self setBlurStyle:[[[preferences dictionaryRepresentation] objectForKey:@"blur"] intValue]]; 
     [self setAllowAppInteraction:[[[preferences dictionaryRepresentation] objectForKey:@"allowAppInteraction"] boolValue]];
-    [self setUseHomeButton:[[[preferences dictionaryRepresentation] objectForKey:@"useHomeButton"] boolValue]];
     [self setUseQuickHomeButtonDismiss:[[[preferences dictionaryRepresentation] objectForKey:@"useQuickHomeButtonDismiss"] boolValue]];
     [self setAllowRotation:[[[preferences dictionaryRepresentation] objectForKey:@"allowRotation"] boolValue]];
     [self setDebug:[[[preferences dictionaryRepresentation] objectForKey:@"debug"] boolValue]];
 
     if(_debug)HBLogDebug(@"blurStyle: %d", _blurStyle);
     if(_debug)HBLogDebug(@"allowAppInteraction: %d", _allowAppInteraction);
-    if(_debug)HBLogDebug(@"useHomeButton: %d", _useHomeButton);
     if(_debug)HBLogDebug(@"useQuickHomeButtonDismiss: %d", _useQuickHomeButtonDismiss);
     if(_debug)HBLogDebug(@"allowRotation: %d", _allowRotation);
 

@@ -3,6 +3,8 @@ include $(THEOS)/makefiles/common.mk
 
 #THEOS_DEVICE_IP = 10.0.1.186
 #THEOS_DEVICE_IP = 10.0.1.4
+THEOS_DEVICE_IP = localhost
+THEOS_DEVICE_PORT = 2222
 
 TWEAK_NAME = sbtest
 sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m

@@ -1,5 +1,8 @@
 #import "SBTest.h"
 
+#define isiOS10Up (kCFCoreFoundationVersionNumber >= 1333.2)
+#define isiOS89 (kCFCoreFoundationVersionNumber >= 1129.15 && kCFCoreFoundationVersionNumber < 1333.2)
+
 @implementation SBTest
 
 +(id)sharedInstance
@@ -147,12 +150,37 @@
     }];
     
     //make sure spotlight is closed
-    [[%c(SBSearchViewController) sharedInstance] dismiss];
+    if(isiOS89) [[%c(SBSearchViewController) sharedInstance] dismiss];
+
+    if(isiOS10Up)
+    {
+        SBRootFolderController *_rootFolderController = MSHookIvar<SBRootFolderController *>([%c(SBIconController) sharedInstance], "_rootFolderController");
+        SBHomeScreenPullDownSearchViewController *_pullDownSearchViewController = MSHookIvar<SBHomeScreenPullDownSearchViewController *>([_rootFolderController contentView], "_pullDownSearchViewController");
+        [_pullDownSearchViewController dismissSearchViewWithReason:1];
+    }
+
     //make sure folders are closed too
-    [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
+    if(isiOS89) [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES];
+
+    if(isiOS10Up)
+    {
+        [[%c(SBIconController) sharedInstance] closeFolderAnimated:YES withCompletion:nil];
+    }
     //and deactivate reachability
     [(SpringBoard *)[%c(SpringBoard) sharedApplication] _deactivateReachability];
     [[%c(SBUIController) sharedInstance] tearDownIconListAndBar];
+
+    //harbor ios 10 fix 
+    if(isiOS10Up)
+    {
+        SBDockIconListView *dockListView = [[%c(SBIconController) sharedInstance] dockListView];
+        if([dockListView respondsToSelector:@selector(collapseAnimated:)])
+        {
+            [dockListView collapseAnimated:YES];
+        }
+           
+    }
+    
 }
 
 -(void)handleRotationWithDuration:(double)duration

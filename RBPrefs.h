@@ -5,7 +5,6 @@
 
 @property int blurStyle;
 @property BOOL allowAppInteraction;
-@property BOOL useHomeButton;
 @property BOOL useQuickHomeButtonDismiss;
 @property BOOL allowRotation;
 @property BOOL debug;
