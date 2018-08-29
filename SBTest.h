@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <libactivator/libactivator.h>
-#import "CKBlurView.h"
-#import "headers.h"
+#import "headers/CKBlurView.h"
+#import "headers/headers.h"
 #import "RBPrefs.h"
 
 

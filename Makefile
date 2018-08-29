@@ -1,32 +1,20 @@
 ARCHS = armv7 armv7s arm64
 include $(THEOS)/makefiles/common.mk
 
-#THEOS_DEVICE_IP = 10.0.1.186
-#THEOS_DEVICE_IP = 10.0.1.4
 THEOS_DEVICE_IP = localhost
 THEOS_DEVICE_PORT = 2222
 
-TWEAK_NAME = sbtest
-sbtest_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m
-sbtest_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
-sbtest_LIBRARIES = activator substrate
-sbtest_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
-#CKBlurView.m_CFLAGS = -fobjc-arc
-#SBTest.xm_CFLAGS = -fobjc-arc
+TWEAK_NAME = riftboard
+riftboard_FILES = Tweak.xm SBTest.xm CKBlurView.m SBTestActivatorEventShow.m SBTestActivatorEventDismiss.m RBPrefs.m
+riftboard_FRAMEWORKS = UIKit Foundation QuartzCore CoreGraphics
+riftboard_LIBRARIES = activator substrate
+riftboard_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 
-#CKBlurView.h_CFLAGS = -fobjc-arc
-sbtest_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
-#sbtest_LDFLAGS += -Wl,-segalign,4000
-
-#sbtest_LIBRARIES = 
+riftboard_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 
 TARGET := iphone:8.0:8.0
 
 include $(THEOS_MAKE_PATH)/tweak.mk
-
-#BUNDLE_NAME = sbtestBundle
-
-#sbtestBundle_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries
 
 include $(THEOS)/makefiles/bundle.mk
 

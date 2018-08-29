@@ -8,7 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#import "CKBlurView.h"
+#import "headers/CKBlurView.h"
 
 @interface CABackdropLayer : CALayer
 
